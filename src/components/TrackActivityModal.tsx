@@ -6,7 +6,7 @@ import { X, Car, Zap, Droplets, Trash2, Box, Sparkles, CheckCircle2, ArrowRight 
 interface TrackActivityModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess?: () => void;
+  onSuccess?: (data: any) => void;
 }
 
 export default function TrackActivityModal({ isOpen, onClose, onSuccess }: TrackActivityModalProps) {
@@ -62,7 +62,7 @@ export default function TrackActivityModal({ isOpen, onClose, onSuccess }: Track
 
       const data = await res.json();
       setResult(data);
-      if (onSuccess) onSuccess();
+      if (onSuccess) onSuccess(data);
     } catch (err: any) {
       setError(err.message || "Failed to submit activity to Spring Boot backend.");
     } finally {

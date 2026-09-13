@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useState } from "react";
-import { 
-  Zap, Award, TrendingUp, Sparkles, Leaf, Shield, 
-  ChevronRight, Calendar, Info, RefreshCw, CheckCircle2 
+import {
+  Zap, Award, TrendingUp, Sparkles, Leaf, Shield,
+  ChevronRight, Calendar, Info, RefreshCw, CheckCircle2
 } from "lucide-react";
-import { 
-  LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, AreaChart, Area 
+import {
+  LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, AreaChart, Area
 } from "recharts";
 
 import TrackActivityModal from "@/components/TrackActivityModal";
@@ -17,12 +17,13 @@ const data = [
   { name: "Wed", carbon: 14, water: 170, electricity: 11 },
   { name: "Thu", carbon: 22, water: 310, electricity: 19 },
   { name: "Fri", carbon: 12, water: 150, electricity: 10 },
-  { name: "Sat", carbon: 9,  water: 120, electricity: 8 },
-  { name: "Sun", carbon: 8,  water: 100, electricity: 7 },
+  { name: "Sat", carbon: 9, water: 120, electricity: 8 },
+  { name: "Sun", carbon: 8, water: 100, electricity: 7 },
 ];
 
 export default function DashboardConsole() {
   const [isTrackModalOpen, setIsTrackModalOpen] = useState(false);
+  const [ecoScore, setEcoScore] = useState(742);
   const [missions, setMissions] = useState([
     { id: 1, title: "Zero-Emission Commute", pts: 50, coins: 120, done: false },
     { id: 2, title: "Plant-Based Power Lunch", pts: 60, coins: 150, done: true },
@@ -39,7 +40,9 @@ export default function DashboardConsole() {
       <TrackActivityModal
         isOpen={isTrackModalOpen}
         onClose={() => setIsTrackModalOpen(false)}
+        onSuccess={(result) => { if (result?.ecoScoreImpact !== undefined && result?.ecoScoreImpact !== null) { setEcoScore((prev) => Math.max(0, Math.min(1000, prev + result.ecoScoreImpact))); }}}
       />
+
 
       {/* Top Welcome Bar */}
       <div className="flex justify-between items-center">
@@ -58,7 +61,7 @@ export default function DashboardConsole() {
             <RefreshCw className="w-3.5 h-3.5" /> Re-sync Devices
           </button>
           <div className="px-4 py-2 text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-xl flex items-center gap-2">
-            <Shield className="w-3.5 h-3.5" /> EcoScore: Excellent (742)
+            <Shield className="w-3.5 h-3.5" /> EcoScore: Excellent ({ecoScore})
           </div>
         </div>
       </div>
@@ -72,7 +75,8 @@ export default function DashboardConsole() {
             <Award className="w-4 h-4 text-emerald-400" />
           </div>
           <div className="flex items-baseline gap-1">
-            <span className="text-4xl font-display font-bold text-emerald-400 glow-text-emerald">742</span>
+            <span className="text-4xl font-display font-bold text-emerald-400 glow-text-emerald">
+              {ecoScore}</span>
             <span className="text-xs text-neutral-500">/ 1000</span>
           </div>
           <p className="text-xs text-neutral-400 mt-2 flex items-center gap-1">
@@ -137,14 +141,14 @@ export default function DashboardConsole() {
               <AreaChart data={data}>
                 <defs>
                   <linearGradient id="colorCarbon" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.2}/>
-                    <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.2} />
+                    <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
                 <XAxis dataKey="name" stroke="rgba(255,255,255,0.3)" fontSize={11} />
                 <YAxis stroke="rgba(255,255,255,0.3)" fontSize={11} />
-                <Tooltip 
+                <Tooltip
                   contentStyle={{ backgroundColor: "#111827", borderColor: "rgba(255,255,255,0.08)" }}
                   labelStyle={{ color: "#9ca3af" }}
                 />
@@ -167,14 +171,13 @@ export default function DashboardConsole() {
 
             <div className="space-y-4">
               {missions.map((m) => (
-                <div 
+                <div
                   key={m.id}
                   onClick={() => toggleMission(m.id)}
-                  className={`p-4 rounded-xl border transition-all duration-200 cursor-pointer flex items-center justify-between ${
-                    m.done 
-                      ? "bg-emerald-500/5 border-emerald-500/20 text-neutral-400" 
+                  className={`p-4 rounded-xl border transition-all duration-200 cursor-pointer flex items-center justify-between ${m.done
+                      ? "bg-emerald-500/5 border-emerald-500/20 text-neutral-400"
                       : "bg-white/5 border-white/5 hover:border-white/10"
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center gap-3">
                     <CheckCircle2 className={`w-5 h-5 ${m.done ? "text-emerald-500" : "text-neutral-600"}`} />
