@@ -1,0 +1,579 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  USER
+  ADMIN
+  SUPERUSER
+}
+
+enum BillStatus {
+  PENDING
+  PROCESSED
+  FAILED
+}
+
+enum ActivityType {
+  FOOD
+  TRANSPORT
+  ELECTRICITY
+  WATER
+  RECYCLING
+  SHOPPING
+}
+
+enum TransportMode {
+  CAR
+  BUS
+  TRAIN
+  BIKE
+  WALK
+  FLIGHT
+}
+
+enum MealCarbonCategory {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum Period {
+  DAILY
+  WEEKLY
+  MONTHLY
+  ALL_TIME
+}
+
+enum LeaderboardType {
+  ECO_SCORE
+  CO2_SAVED
+  TREES_PLANTED
+}
+
+enum MarketplaceCategory {
+  PRODUCTS
+  TREES
+  OFFSETS
+}
+
+enum BadgeTier {
+  BRONZE
+  SILVER
+  GOLD
+  DIAMOND
+}
+
+enum NotificationType {
+  CHALLENGE
+  SYSTEM
+  ACHIEVEMENT
+  LEADERBOARD
+  VIRTUAL_FOREST
+  BILL_SCAN
+}
+
+enum ReportType {
+  WEEKLY
+  MONTHLY
+  YEARLY
+}
+
+model User {
+  id                  String               @id @default(uuid())
+  email               String               @unique
+  passwordHash        String?
+  role                Role                 @default(USER)
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  profile             Profile?
+  ecoScore            EcoScore?
+  dailyActivities     DailyActivity[]
+  completedChallenges CompletedChallenge[]
+  carbonHistory       CarbonHistory[]
+  electricityBills    ElectricityBill[]
+  waterUsage          WaterUsage[]
+  receiptScans        ReceiptScan[]
+  transportLogs       TransportLog[]
+  foodLogs            FoodLog[]
+  rewardPoints        RewardPoints?
+  leaderboardEntries  Leaderboard[]
+  purchases           Purchase[]
+  virtualForest       VirtualForest?
+  notifications       Notification[]
+  aiRecommendations   AIRecommendation[]
+  chatHistory         ChatHistory[]
+  reports             Report[]
+  settings            Settings?
+  feedbacks           Feedback[]
+  sessions            Session[]
+  adminProfile        Admin?
+  auditLogs           AuditLog[]
+  teams               Team[]               @relation("TeamMembers")
+  createdTeams        Team[]               @relation("TeamCreator")
+  badges              Badge[]              @relation("UserBadges")
+
+  @@index([email])
+}
+
+model Profile {
+  id          String   @id @default(uuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  avatar      String?
+  campus      String?
+  department  String?
+  class       String?
+  bio         String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([campus, department])
+}
+
+model EcoScore {
+  id                 String   @id @default(uuid())
+  userId             String   @unique
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  currentScore       Int      @default(500)
+  carbonSaved        Float    @default(0.0) // In kg CO2
+  waterSaved         Float    @default(0.0) // In Liters
+  electricitySaved   Float    @default(0.0) // In kWh
+  plasticAvoided     Float    @default(0.0) // In kg
+  treesPlanted       Int      @default(0)
+  points             Int      @default(0)
+  level              Int      @default(1)
+  rank               Int      @default(0)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model DailyActivity {
+  id           String       @id @default(uuid())
+  userId       String
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type         ActivityType
+  description  String
+  co2Amount    Float        @default(0.0) // In kg
+  waterSaved   Float        @default(0.0) // In Liters
+  value        Float        @default(0.0) // Raw metric value
+  pointsEarned Int          @default(0)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@index([userId, type])
+  @@index([createdAt])
+}
+
+model Challenge {
+  id                  String               @id @default(uuid())
+  title               String
+  description         String
+  category            String
+  targetValue         Float
+  durationDays        Int                  @default(7)
+  coinsReward         Int                  @default(100)
+  pointsReward        Int                  @default(50)
+  xpReward            Int                  @default(150)
+  isSystem            Boolean              @default(true)
+  isAiGenerated       Boolean              @default(false)
+  difficulty          String               @default("Medium")
+  targetMetric        String
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  completedChallenges CompletedChallenge[]
+}
+
+model CompletedChallenge {
+  id          String    @id @default(uuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  challengeId String
+  challenge   Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  completedAt DateTime  @default(now())
+  status      String    @default("COMPLETED") // COMPLETED, PENDING_PROOF
+  proofUrl    String?
+  feedback    String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([userId, challengeId])
+}
+
+model CarbonHistory {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date         DateTime
+  score        Int
+  transportCo2 Float    @default(0.0)
+  foodCo2      Float    @default(0.0)
+  homeCo2      Float    @default(0.0)
+  shoppingCo2  Float    @default(0.0)
+  totalCo2     Float    @default(0.0)
+  savedCo2     Float    @default(0.0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([userId, date])
+}
+
+model ElectricityBill {
+  id            String     @id @default(uuid())
+  userId        String
+  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  billingDate   DateTime
+  energyKwh     Float
+  amount        Float
+  carbonOutput  Float
+  fileUrl       String?
+  status        BillStatus @default(PENDING)
+  extractedData Json?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  @@index([userId])
+}
+
+model WaterUsage {
+  id            String     @id @default(uuid())
+  userId       String
+  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  billingDate   DateTime
+  volumeLiters  Float
+  amount        Float
+  fileUrl       String?
+  status        BillStatus @default(PENDING)
+  extractedData Json?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  @@index([userId])
+}
+
+model ReceiptScan {
+  id              String     @id @default(uuid())
+  userId          String
+  user            User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scanDate        DateTime   @default(now())
+  merchant        String?
+  totalAmount     Float      @default(0.0)
+  carbonEmissions Float      @default(0.0)
+  rawText         String?
+  status          BillStatus @default(PENDING)
+  items           Json?
+  fileUrl         String?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  @@index([userId])
+}
+
+model TransportLog {
+  id              String        @id @default(uuid())
+  userId          String
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date            DateTime
+  mode            TransportMode
+  distanceKm      Float
+  co2Emissions    Float
+  durationMinutes Int           @default(0)
+  isCommute       Boolean       @default(false)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([userId, date])
+}
+
+model FoodLog {
+  id                 String             @id @default(uuid())
+  userId             String
+  user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mealType           String
+  description        String
+  mealCarbonCategory MealCarbonCategory @default(MEDIUM)
+  co2Emissions       Float
+  isOrganic          Boolean            @default(false)
+  photoUrl           String?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  @@index([userId])
+}
+
+model Achievement {
+  id               String   @id @default(uuid())
+  title            String
+  description      String
+  badgeUrl         String?
+  requirementType  String
+  requirementValue Float
+  coinReward       Int      @default(100)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model RewardPoints {
+  id           String   @id @default(uuid())
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  balance      Int      @default(0)
+  earnedTotal  Int      @default(0)
+  spentTotal   Int      @default(0)
+  transactions Json?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Leaderboard {
+  id        String          @id @default(uuid())
+  userId    String
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  score     Int
+  period    Period
+  rank      Int
+  scoreType LeaderboardType @default(ECO_SCORE)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  @@index([period, scoreType, score(sort: Desc)])
+}
+
+model Team {
+  id               String      @id @default(uuid())
+  name             String      @unique
+  description      String?
+  avatarUrl        String?
+  department       String?
+  campus           String?
+  creatorId        String
+  creator          User        @relation("TeamCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  challengeProgress Float      @default(0.0)
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  members          User[]      @relation("TeamMembers")
+  communities      Community[] @relation("CommunityTeams")
+}
+
+model Community {
+  id             String   @id @default(uuid())
+  name           String   @unique
+  description    String?
+  avatarUrl      String?
+  totalMembers   Int      @default(1)
+  totalTrees     Int      @default(0)
+  communityScore Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  teams          Team[]   @relation("CommunityTeams")
+}
+
+model EcoMarketplace {
+  id           String              @id @default(uuid())
+  title        String
+  description  String
+  imageUrl     String?
+  priceCoins   Int
+  stock        Int                 @default(100)
+  category     MarketplaceCategory
+  provider     String
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+  purchases    Purchase[]
+}
+
+model Purchase {
+  id           String         @id @default(uuid())
+  userId       String
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  itemId       String
+  marketplace  EcoMarketplace @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  priceCoins   Int
+  purchasedAt  DateTime       @default(now())
+  status       String         @default("COMPLETED") // COMPLETED, PENDING_DELIVERY
+  redemptions  Json?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@index([userId])
+}
+
+model VirtualForest {
+  id                 String               @id @default(uuid())
+  userId             String               @unique
+  user               User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  totalTrees         Int                  @default(0)
+  plotSize           Float                @default(100.0) // In square meters
+  carbonOffsetRate   Float                @default(0.0) // In kg CO2 / year
+  status             String               @default("HEALTHY")
+  description        String?
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  trees              TreeGrowthHistory[]
+}
+
+model TreeGrowthHistory {
+  id                     String        @id @default(uuid())
+  forestId               String
+  forest                 VirtualForest @relation(fields: [forestId], references: [id], onDelete: Cascade)
+  treeSpecies            String
+  growthStage            String        @default("SEED") // SEED, SAPLING, YOUNG, MATURE
+  plantedAt              DateTime      @default(now())
+  lastWatered            DateTime      @default(now())
+  waterCount             Int           @default(0)
+  heightCm               Float         @default(1.0)
+  healthStatus           String        @default("HEALTHY")
+  co2AbsorptionRealTime  Float         @default(0.0)
+  createdAt              DateTime      @default(now())
+  updatedAt              DateTime      @updatedAt
+
+  @@index([forestId])
+}
+
+model Badge {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  description String
+  iconUrl     String?
+  tier        BadgeTier @default(BRONZE)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  users       User[]    @relation("UserBadges")
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  type      NotificationType
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  @@index([userId, isRead])
+}
+
+model AIRecommendation {
+  id                  String   @id @default(uuid())
+  userId              String
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category            String // ENERGY, FOOD, WASTE, TRANSPORT, SHOPPING
+  actionTitle         String
+  actionDescription   String
+  potentialSavingsCo2 Float
+  estimatedSavingsCost Float
+  difficulty          String   @default("Medium")
+  targetDate          DateTime?
+  isCompleted         Boolean  @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model ChatHistory {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sender      String // USER, AI
+  message     String
+  contextData Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Report {
+  id               String     @id @default(uuid())
+  userId           String
+  user             User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type             ReportType
+  startDate        DateTime
+  endDate          DateTime
+  co2Summary       Json
+  waterSummary     Json
+  energySummary    Json
+  transportSummary Json
+  foodSummary      Json
+  recommendations  Json
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
+  @@index([userId, type])
+}
+
+model Settings {
+  id                 String   @id @default(uuid())
+  userId             String   @unique
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  notificationsEnabled Boolean @default(true)
+  emailUpdates       Boolean  @default(true)
+  publicProfile      Boolean  @default(false)
+  defaultTransport   String   @default("BIKE")
+  campusVisibility   Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model Feedback {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category  String
+  message   String
+  rating    Int
+  response  String?
+  status    String   @default("OPEN") // OPEN, RESOLVED
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Admin {
+  id          String   @id @default(uuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  permissions Json
+  level       Int      @default(1)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model AuditLog {
+  id             String   @id @default(uuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  actionType     String
+  entityAffected String
+  description    String
+  ipAddress      String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([userId])
+  @@index([createdAt])
+}

@@ -1,0 +1,1920 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EcoVerse AI | Autonomous Sustainability Operating System</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- GSAP for premium animations -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
+    
+    body {
+      background-color: #030712;
+      color: #f9fafb;
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+    }
+    .font-display {
+      font-family: 'Outfit', sans-serif;
+    }
+    /* Glassmorphic Panel */
+    .glass-panel {
+      background: rgba(17, 24, 39, 0.65);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+    }
+    .glass-panel-hover:hover {
+      background: rgba(31, 41, 55, 0.85);
+      border-color: rgba(16, 185, 129, 0.35);
+      box-shadow: 0 8px 30px rgba(16, 185, 129, 0.08);
+      transform: translateY(-2px);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    /* Ambient Glows */
+    .glow-text-emerald {
+      text-shadow: 0 0 20px rgba(16, 185, 129, 0.6);
+    }
+    .glow-text-sky {
+      text-shadow: 0 0 20px rgba(14, 165, 233, 0.6);
+    }
+    .glow-border-emerald {
+      box-shadow: 0 0 25px rgba(16, 185, 129, 0.15);
+    }
+    /* Hide scrollbar but keep functionality */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    /* Spinning slow animation */
+    @keyframes spin-slow {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .animate-spin-slow {
+      animation: spin-slow 25s linear infinite;
+    }
+    /* Page print layout options */
+    @media print {
+      body {
+        background-color: white;
+        color: black;
+      }
+      .print-hide {
+        display: none !important;
+      }
+    }
+  </style>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            background: "#030712",
+            foreground: "#f9fafb",
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="antialiased min-h-screen relative">
+
+  <!-- Ambient Glow Background -->
+  <div class="absolute top-[-10%] left-[-5%] w-[45%] h-[55%] rounded-full bg-emerald-500/10 blur-[120px] pointer-events-none z-0"></div>
+  <div class="absolute bottom-[-10%] right-[-5%] w-[45%] h-[55%] rounded-full bg-sky-500/10 blur-[120px] pointer-events-none z-0"></div>
+
+  <!-- ==================== LANDING PAGE VIEW ==================== -->
+  <div id="landing-page" class="relative z-10 w-full">
+    <!-- Navbar -->
+    <header class="fixed top-0 left-0 right-0 z-50 glass-panel border-b border-white/5 py-4 px-6 md:px-12 flex justify-between items-center">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-emerald-500 to-sky-500 flex items-center justify-center font-bold text-white shadow-lg glow-border-emerald">
+          E
+        </div>
+        <span class="font-display font-bold text-xl tracking-tight bg-gradient-to-r from-white via-neutral-200 to-neutral-400 bg-clip-text text-transparent">
+          EcoVerse <span class="text-emerald-500">AI</span>
+        </span>
+      </div>
+      <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-neutral-400">
+        <a href="#features" class="hover:text-emerald-400 transition-colors">Features</a>
+        <a href="#simulator" class="hover:text-emerald-400 transition-colors">Future Projections</a>
+        <a href="#pricing" class="hover:text-emerald-400 transition-colors">Pricing</a>
+      </nav>
+      <div class="flex items-center gap-4">
+        <button onclick="enterDashboard()" class="px-4 py-2 text-sm font-semibold text-neutral-300 hover:text-white transition-colors">
+          Login
+        </button>
+        <button onclick="enterDashboard()" class="px-4 py-2 text-sm font-semibold bg-emerald-500 hover:bg-emerald-600 text-black rounded-lg transition-all duration-300 shadow-md shadow-emerald-500/20 hover:scale-105">
+          Launch OS
+        </button>
+      </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="pt-32 pb-20 px-6 md:px-12 flex flex-col items-center justify-center text-center relative max-w-7xl mx-auto">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full glass-panel border border-white/10 text-xs text-neutral-400 font-semibold mb-6">
+        <i data-lucide="sparkles" class="w-3.5 h-3.5 text-emerald-400 animate-pulse"></i>
+        Autonomous Sustainability Operating System
+      </div>
+
+      <h1 class="font-display font-extrabold text-4xl md:text-7xl leading-tight max-w-5xl tracking-tight mb-6">
+        The World's First <span class="bg-gradient-to-r from-emerald-400 via-teal-300 to-sky-400 bg-clip-text text-transparent">Autonomous Sustainability</span> Operating System
+      </h1>
+
+      <p class="text-neutral-400 text-base md:text-xl max-w-2xl mb-10 leading-relaxed">
+        Say goodbye to manual trackers. EcoVerse AI automatically analyzes utility bills, scans receipts, tracks transportation, runs future simulators, and shapes a virtual Earth Twin.
+      </p>
+
+      <div class="flex flex-col sm:flex-row gap-4 mb-16">
+        <button onclick="enterDashboard()" class="px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-black font-bold rounded-xl transition-all duration-300 shadow-xl shadow-emerald-500/20 hover:shadow-emerald-500/30 hover:scale-105 flex items-center gap-2 justify-center">
+          Get Started Free <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+        <a href="#features" class="px-8 py-4 glass-panel border border-white/10 text-white font-semibold rounded-xl hover:bg-white/5 transition-colors flex items-center justify-center">
+          Explore Engine
+        </a>
+      </div>
+
+      <!-- Animated Globe -->
+      <div class="relative w-80 h-80 md:w-[450px] md:h-[450px] rounded-full flex items-center justify-center mb-10">
+        <div class="absolute inset-0 rounded-full bg-gradient-to-tr from-emerald-500/20 via-sky-500/10 to-transparent blur-3xl animate-pulse"></div>
+        <div class="w-72 h-72 md:w-96 md:h-96 rounded-full glass-panel border-2 border-emerald-500/20 flex items-center justify-center relative overflow-hidden animate-spin-slow shadow-2xl shadow-emerald-500/10">
+          <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]"></div>
+          <div class="absolute top-1/4 left-1/4 w-12 h-12 rounded-full bg-sky-500/40 blur-lg"></div>
+          <div class="absolute bottom-1/3 right-1/4 w-20 h-20 rounded-full bg-emerald-500/40 blur-lg"></div>
+          <i data-lucide="globe" class="w-32 h-32 md:w-44 md:h-44 text-emerald-400 opacity-65"></i>
+        </div>
+        <!-- Orbiting details -->
+        <div class="absolute w-[360px] h-[360px] md:w-[500px] md:h-[500px] rounded-full border border-dashed border-white/15 animate-spin" style="animation-duration: 35s;">
+          <div class="absolute top-0 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-sky-400 shadow-[0_0_15px_#38bdf8] flex items-center justify-center">
+            <i data-lucide="leaf" class="w-2.5 h-2.5 text-black"></i>
+          </div>
+          <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-3.5 h-3.5 rounded-full bg-emerald-400 shadow-[0_0_15px_#34d399]"></div>
+        </div>
+      </div>
+
+      <!-- Live Counters -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl w-full mt-8">
+        <div class="glass-panel p-6 rounded-2xl border border-white/5 flex flex-col items-center">
+          <span class="text-neutral-500 text-xs font-semibold uppercase tracking-wider mb-2">CO₂ Offsets Saved</span>
+          <span id="co2-counter" class="text-3xl font-display font-bold text-emerald-400 glow-text-emerald">1,420,580 kg</span>
+        </div>
+        <div class="glass-panel p-6 rounded-2xl border border-white/5 flex flex-col items-center">
+          <span class="text-neutral-500 text-xs font-semibold uppercase tracking-wider mb-2">Global Trees Planted</span>
+          <span id="trees-counter" class="text-3xl font-display font-bold text-white">84,320</span>
+        </div>
+        <div class="glass-panel p-6 rounded-2xl border border-white/5 flex flex-col items-center">
+          <span class="text-neutral-500 text-xs font-semibold uppercase tracking-wider mb-2">Water Conserved</span>
+          <span id="water-counter" class="text-3xl font-display font-bold text-sky-400 glow-text-sky">54,930,200 L</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Showcase Grid -->
+    <section id="features" class="py-24 px-6 md:px-12 border-t border-white/5 bg-black/30">
+      <div class="max-w-6xl mx-auto">
+        <div class="text-center mb-16">
+          <h2 class="font-display font-bold text-3xl md:text-5xl mb-4">Sustainability, Re-Engineered.</h2>
+          <p class="text-neutral-400 max-w-2xl mx-auto">A framework built for zero manual effort. Fully automated lifestyle analysis.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div class="glass-panel p-8 rounded-2xl hover:border-emerald-500/30 transition-all duration-300 group">
+            <div class="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 mb-6 group-hover:scale-110 transition-transform">
+              <i data-lucide="scan" class="w-6 h-6"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-3">AI Receipt Intelligence</h3>
+            <p class="text-neutral-400 text-sm leading-relaxed">Scan any receipt or utility invoice. Our OCR classifies products, flags plastic risks, calculates carbon weight, and recommends local alternatives.</p>
+          </div>
+
+          <div class="glass-panel p-8 rounded-2xl hover:border-emerald-500/30 transition-all duration-300 group">
+            <div class="w-12 h-12 rounded-xl bg-sky-500/10 flex items-center justify-center text-sky-400 mb-6 group-hover:scale-110 transition-transform">
+              <i data-lucide="globe" class="w-6 h-6"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-3">AI Digital Twin Earth</h3>
+            <p class="text-neutral-400 text-sm leading-relaxed">Your real-life achievements nurture a live virtual planet. Clear the virtual oceans, grow trees, and restore ecosystem diversity through verified steps.</p>
+          </div>
+
+          <div class="glass-panel p-8 rounded-2xl hover:border-emerald-500/30 transition-all duration-300 group">
+            <div class="w-12 h-12 rounded-xl bg-violet-500/10 flex items-center justify-center text-violet-400 mb-6 group-hover:scale-110 transition-transform">
+              <i data-lucide="sparkles" class="w-6 h-6"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-3">Future Projections Simulator</h3>
+            <p class="text-neutral-400 text-sm leading-relaxed">Witness long-term environmental shadow projections. Simulate where your energy, shopping, and diet footprints will lead 1, 5, or 10 years out.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ==================== MAIN DASHBOARD VIEW ==================== -->
+  <div id="dashboard-view" class="hidden relative z-10 flex min-h-screen">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 glass-panel border-r border-white/5 flex flex-col justify-between fixed top-0 bottom-0 left-0 z-30 print-hide">
+      <div>
+        <div class="p-6 border-b border-white/5 flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-emerald-500 to-sky-500 flex items-center justify-center font-bold text-white shadow-lg glow-border-emerald">
+            E
+          </div>
+          <span class="font-display font-bold text-lg tracking-tight">EcoVerse <span class="text-emerald-500">OS</span></span>
+        </div>
+        
+        <nav class="p-4 space-y-1">
+          <button onclick="switchTab('console')" id="nav-console" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 bg-emerald-500/10 text-emerald-400 border border-emerald-500/25">
+            <i data-lucide="layout-dashboard" class="w-4 h-4 text-emerald-400"></i>
+            OS Console
+          </button>
+          <button onclick="switchTab('twin')" id="nav-twin" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 text-neutral-400 hover:bg-white/5 hover:text-white border border-transparent">
+            <i data-lucide="globe" class="w-4 h-4 text-neutral-400"></i>
+            Digital Twin
+          </button>
+          <button onclick="switchTab('scan')" id="nav-scan" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 text-neutral-400 hover:bg-white/5 hover:text-white border border-transparent">
+            <i data-lucide="scan" class="w-4 h-4 text-neutral-400"></i>
+            Receipt & Bill Scan
+          </button>
+          <button onclick="switchTab('wallet')" id="nav-wallet" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 text-neutral-400 hover:bg-white/5 hover:text-white border border-transparent">
+            <i data-lucide="wallet" class="w-4 h-4 text-neutral-400"></i>
+            Carbon Wallet
+          </button>
+          <button onclick="switchTab('community')" id="nav-community" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 text-neutral-400 hover:bg-white/5 hover:text-white border border-transparent">
+            <i data-lucide="users" class="w-4 h-4 text-neutral-400"></i>
+            Community Forest
+          </button>
+          <button onclick="switchTab('coach')" id="nav-coach" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 text-neutral-400 hover:bg-white/5 hover:text-white border border-transparent">
+            <i data-lucide="message-square" class="w-4 h-4 text-neutral-400"></i>
+            AI Coach
+          </button>
+          <button onclick="switchTab('resume')" id="nav-resume" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 text-neutral-400 hover:bg-white/5 hover:text-white border border-transparent">
+            <i data-lucide="file-text" class="w-4 h-4 text-neutral-400"></i>
+            Eco Resume
+          </button>
+          <button onclick="switchTab('admin')" id="nav-admin" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 text-neutral-400 hover:bg-white/5 hover:text-white border border-transparent">
+            <i data-lucide="shield-alert" class="w-4 h-4 text-neutral-400"></i>
+            Admin Panel
+          </button>
+        </nav>
+      </div>
+
+      <div class="p-4 border-t border-white/5 space-y-3">
+        <div class="flex items-center gap-3 px-4 py-2">
+          <div class="w-8 h-8 rounded-full bg-neutral-800 flex items-center justify-center font-bold text-xs">JD</div>
+          <div class="flex flex-col">
+            <span class="text-xs font-semibold">John Doe</span>
+            <span class="text-[10px] text-neutral-500">Eco-Score Rank #42</span>
+          </div>
+        </div>
+        <button onclick="exitDashboard()" class="w-full flex items-center gap-3 px-4 py-2 text-neutral-400 hover:text-red-400 hover:bg-red-500/10 rounded-xl text-xs font-medium transition-colors">
+          <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+          Logout Session
+        </button>
+      </div>
+    </aside>
+
+    <!-- Content Workspace -->
+    <main class="flex-1 pl-64 min-h-screen p-8 max-w-7xl mx-auto w-full relative">
+      
+      <!-- ==================== TAB: CONSOLE ==================== -->
+      <section id="tab-console" class="tab-content space-y-8">
+        <div class="flex justify-between items-center">
+          <div>
+            <h1 class="font-display font-bold text-3xl tracking-tight">OS Console</h1>
+            <p class="text-neutral-400 text-sm">Welcome back, John. EcoVerse OS is running optimally.</p>
+          </div>
+          <div class="flex gap-3">
+            <button onclick="alert('Re-syncing all connected smart IoT device monitors...')" class="px-4 py-2 text-xs font-semibold glass-panel rounded-xl hover:bg-white/5 transition-colors flex items-center gap-2">
+              <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Re-sync Devices
+            </button>
+            <div class="px-4 py-2 text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-xl flex items-center gap-2">
+              <i data-lucide="shield" class="w-3.5 h-3.5"></i> EcoScore: Excellent (742)
+            </div>
+          </div>
+        </div>
+
+        <!-- Metrics cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div class="glass-panel p-6 rounded-2xl relative overflow-hidden">
+            <div class="flex justify-between items-start mb-4">
+              <span class="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Eco Score</span>
+              <i data-lucide="award" class="w-4 h-4 text-emerald-400"></i>
+            </div>
+            <div class="flex items-baseline gap-1">
+              <span class="text-4xl font-display font-bold text-emerald-400 glow-text-emerald">742</span>
+              <span class="text-xs text-neutral-500">/ 1000</span>
+            </div>
+            <p class="text-xs text-neutral-400 mt-2 flex items-center gap-1">
+              <i data-lucide="trending-up" class="w-3.5 h-3.5 text-emerald-400"></i> +4.2% since last week
+            </p>
+          </div>
+
+          <div class="glass-panel p-6 rounded-2xl relative overflow-hidden">
+            <div class="flex justify-between items-start mb-4">
+              <span class="text-xs font-semibold text-neutral-400 uppercase tracking-wider">CO₂ Saved</span>
+              <i data-lucide="leaf" class="w-4 h-4 text-emerald-400"></i>
+            </div>
+            <div class="flex items-baseline gap-1">
+              <span id="console-co2-saved" class="text-4xl font-display font-bold">148.2</span>
+              <span class="text-xs text-neutral-500">kg</span>
+            </div>
+            <p class="text-xs text-neutral-400 mt-2">Offset equivalent to 6 trees</p>
+          </div>
+
+          <div class="glass-panel p-6 rounded-2xl relative overflow-hidden">
+            <div class="flex justify-between items-start mb-4">
+              <span class="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Water Conserved</span>
+              <i data-lucide="droplet" class="w-4 h-4 text-sky-400"></i>
+            </div>
+            <div class="flex items-baseline gap-1">
+              <span id="console-water-saved" class="text-4xl font-display font-bold text-sky-400 glow-text-sky">1,240</span>
+              <span class="text-xs text-neutral-500">L</span>
+            </div>
+            <p class="text-xs text-neutral-400 mt-2">Saved via smart flow meters</p>
+          </div>
+
+          <div class="glass-panel p-6 rounded-2xl relative overflow-hidden">
+            <div class="flex justify-between items-start mb-4">
+              <span class="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Energy Conserved</span>
+              <i data-lucide="zap" class="w-4 h-4 text-yellow-400"></i>
+            </div>
+            <div class="flex items-baseline gap-1">
+              <span id="console-energy-saved" class="text-4xl font-display font-bold">85.4</span>
+              <span class="text-xs text-neutral-500">kWh</span>
+            </div>
+            <p class="text-xs text-neutral-400 mt-2">12% below campus baseline</p>
+          </div>
+        </div>
+
+        <!-- Chart area & Challenges -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div class="glass-panel p-6 rounded-2xl lg:col-span-2 space-y-6">
+            <div class="flex justify-between items-center">
+              <div>
+                <h3 class="font-bold text-lg">Consumption Profiles</h3>
+                <p class="text-xs text-neutral-400">Resource and carbon trends over 7 days.</p>
+              </div>
+            </div>
+            <!-- Canvas for Chart.js -->
+            <div class="h-64 relative">
+              <canvas id="consoleTrendChart"></canvas>
+            </div>
+          </div>
+
+          <!-- AI challenges list -->
+          <div class="glass-panel p-6 rounded-2xl flex flex-col justify-between">
+            <div>
+              <div class="flex justify-between items-center mb-6">
+                <div>
+                  <h3 class="font-bold text-lg">AI Smart Challenges</h3>
+                  <p class="text-xs text-neutral-400">Personalized daily missions.</p>
+                </div>
+                <i data-lucide="sparkles" class="w-4 h-4 text-emerald-400 animate-pulse"></i>
+              </div>
+
+              <div id="console-missions-list" class="space-y-4">
+                <!-- Javascript will inject list -->
+              </div>
+            </div>
+            <div class="pt-6 mt-6 border-t border-white/5 text-center">
+              <span class="text-[10px] text-neutral-500 flex items-center justify-center gap-1">
+                <i data-lucide="info" class="w-3.5 h-3.5"></i> AI updates tasks daily.
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recommendations & Timeline -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div class="glass-panel p-6 rounded-2xl space-y-4">
+            <h3 class="font-bold text-lg">AI Coaching Directives</h3>
+            <div class="space-y-3">
+              <div class="p-4 rounded-xl bg-white/5 border border-white/5 hover:border-emerald-500/25 transition-all cursor-pointer" onclick="switchTab('coach')">
+                <div class="flex items-center gap-2 mb-1.5">
+                  <span class="px-2 py-0.5 rounded bg-yellow-500/20 text-yellow-400 text-[10px] font-bold uppercase">Energy</span>
+                  <h4 class="text-sm font-bold">Shift appliance usage to off-peak</h4>
+                </div>
+                <p class="text-xs text-neutral-400">Peak spikes detected between 4 PM - 8 PM. Shifting consumption saves 15% grid load carbon.</p>
+              </div>
+              <div class="p-4 rounded-xl bg-white/5 border border-white/5 hover:border-emerald-500/25 transition-all cursor-pointer" onclick="switchTab('coach')">
+                <div class="flex items-center gap-2 mb-1.5">
+                  <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase">Food</span>
+                  <h4 class="text-sm font-bold">Substitute beef with plant-based protein</h4>
+                </div>
+                <p class="text-xs text-neutral-400">Your scanned food grocery items shows meat density is 30% higher than average. Substituting cuts 80% food emissions.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-panel p-6 rounded-2xl space-y-4">
+            <h3 class="font-bold text-lg">Eco Timeline</h3>
+            <div class="relative pl-6 space-y-6 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[2px] before:bg-white/5">
+              <div class="relative flex items-start gap-4">
+                <div class="absolute -left-[19px] w-2.5 h-2.5 rounded-full bg-emerald-500 ring-4 ring-emerald-500/25"></div>
+                <div class="flex flex-col">
+                  <span class="text-xs font-semibold">Grocery Receipt Scanned</span>
+                  <span class="text-[10px] text-neutral-500">2 hours ago &bull; Organic Foods Market</span>
+                </div>
+              </div>
+              <div class="relative flex items-start gap-4">
+                <div class="absolute -left-[19px] w-2.5 h-2.5 rounded-full bg-sky-500 ring-4 ring-sky-500/25"></div>
+                <div class="flex flex-col">
+                  <span class="text-xs font-semibold">Commute log registered</span>
+                  <span class="text-[10px] text-neutral-500">6 hours ago &bull; 8.4 km bike ride</span>
+                </div>
+              </div>
+              <div class="relative flex items-start gap-4">
+                <div class="absolute -left-[19px] w-2.5 h-2.5 rounded-full bg-yellow-500 ring-4 ring-yellow-500/25"></div>
+                <div class="flex flex-col">
+                  <span class="text-xs font-semibold">Electricity Bill Processed</span>
+                  <span class="text-[10px] text-neutral-500">1 day ago &bull; Usage down 12%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== TAB: TWIN & SIMULATOR ==================== -->
+      <section id="tab-twin" class="tab-content hidden space-y-8">
+        <div>
+          <h1 class="font-display font-bold text-3xl tracking-tight">AI Digital Twin & Future Simulator</h1>
+          <p class="text-neutral-400 text-sm">Monitor your virtual earth twin and run future sustainability models.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <!-- Digital Twin Globe -->
+          <div class="glass-panel p-6 rounded-2xl flex flex-col justify-between space-y-6">
+            <div>
+              <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-lg">My Twin Earth</h3>
+                <span id="twin-status-badge" class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 text-xs font-semibold">Healthy State</span>
+              </div>
+              <p class="text-xs text-neutral-400">Nurture and grow this ecosystem via real-world clean behaviors.</p>
+            </div>
+
+            <!-- Glowing Sphere -->
+            <div class="relative w-full h-64 flex items-center justify-center bg-black/40 rounded-xl overflow-hidden border border-white/5">
+              <div class="absolute inset-0 bg-[radial-gradient(#10b981_1px,transparent_1px)] [background-size:20px_20px] opacity-10"></div>
+              <div id="twin-globe-holder" class="w-36 h-36 rounded-full border-2 border-dashed border-emerald-500/30 flex items-center justify-center transition-all duration-300">
+                <i data-lucide="globe" id="twin-globe-icon" class="w-20 h-20 text-sky-400 transition-colors duration-500"></i>
+              </div>
+            </div>
+
+            <div class="space-y-3 text-xs">
+              <div class="flex justify-between border-b border-white/5 pb-2">
+                <span class="text-neutral-400">Ocean Plastic Index</span>
+                <span id="twin-plastic-index" class="font-semibold text-emerald-400">Optimal (12%)</span>
+              </div>
+              <div class="flex justify-between border-b border-white/5 pb-2">
+                <span class="text-neutral-400">Forest Density</span>
+                <span id="twin-forest-index" class="font-semibold text-emerald-400">94% Growth</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-neutral-400">Wildlife Biodiversity</span>
+                <span id="twin-wildlife-index" class="text-white font-semibold">Thriving</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Future Projections -->
+          <div class="glass-panel p-6 rounded-2xl lg:col-span-2 space-y-6">
+            <div class="flex justify-between items-center">
+              <div>
+                <h3 class="font-bold text-lg">Impact Timeline Projections</h3>
+                <p class="text-xs text-neutral-400">Select a life profile path to calculate compounded environmental outcomes.</p>
+              </div>
+              <i data-lucide="sparkles" class="w-4 h-4 text-emerald-400"></i>
+            </div>
+
+            <!-- Profile Selector tabs -->
+            <div class="grid grid-cols-3 gap-3 p-1 bg-black/40 rounded-xl border border-white/5">
+              <button onclick="setSimProfile('hyper')" id="btn-profile-hyper" class="py-2 text-xs font-semibold rounded-lg text-neutral-400 hover:text-white transition-colors">
+                Hyper Eco
+              </button>
+              <button onclick="setSimProfile('current')" id="btn-profile-current" class="py-2 text-xs font-semibold rounded-lg bg-white/10 text-white transition-colors">
+                Current Profile
+              </button>
+              <button onclick="setSimProfile('unsustainable')" id="btn-profile-unsustainable" class="py-2 text-xs font-semibold rounded-lg text-neutral-400 hover:text-white transition-colors">
+                Unsustainable
+              </button>
+            </div>
+
+            <!-- Timeline Selector -->
+            <div class="flex justify-center gap-4">
+              <button onclick="setSimYear(1)" id="btn-year-1" class="w-16 py-1.5 rounded-lg text-xs font-bold border border-white/10 text-neutral-400 hover:border-white/20 transition-all">1 Year</button>
+              <button onclick="setSimYear(5)" id="btn-year-5" class="w-16 py-1.5 rounded-lg text-xs font-bold border border-white text-white bg-white/5 transition-all">5 Year</button>
+              <button onclick="setSimYear(10)" id="btn-year-10" class="w-16 py-1.5 rounded-lg text-xs font-bold border border-white/10 text-neutral-400 hover:border-white/20 transition-all">10 Year</button>
+            </div>
+
+            <!-- Outputs Grid -->
+            <div class="grid grid-cols-2 gap-4">
+              <div class="p-4 bg-white/5 rounded-xl border border-white/5 flex flex-col justify-between">
+                <span class="text-[10px] uppercase font-bold text-neutral-500">Projected CO₂ Footprint</span>
+                <span id="sim-out-co2" class="text-2xl font-bold font-display mt-2 text-white">25,200 kg</span>
+                <span class="text-[10px] text-neutral-400 mt-1">Based on lifestyle selections</span>
+              </div>
+              <div class="p-4 bg-white/5 rounded-xl border border-white/5 flex flex-col justify-between">
+                <span class="text-[10px] uppercase font-bold text-neutral-500">Utility Cost Burn</span>
+                <span id="sim-out-money" class="text-2xl font-bold font-display mt-2 text-yellow-400">$12,000</span>
+                <span class="text-[10px] text-neutral-400 mt-1">Utility electricity & water costs</span>
+              </div>
+              <div class="p-4 bg-white/5 rounded-xl border border-white/5 flex flex-col justify-between">
+                <span class="text-[10px] uppercase font-bold text-neutral-500">Deforest Multiplier</span>
+                <span id="sim-out-trees" class="text-2xl font-bold font-display mt-2 text-emerald-400">75 trees lost</span>
+                <span class="text-[10px] text-neutral-400 mt-1">Carbon offset capacity lost</span>
+              </div>
+              <div class="p-4 bg-white/5 rounded-xl border border-white/5 flex flex-col justify-between">
+                <span class="text-[10px] uppercase font-bold text-neutral-500">Freshwater Footprint</span>
+                <span id="sim-out-water" class="text-2xl font-bold font-display mt-2 text-sky-400">750,000 L</span>
+                <span class="text-[10px] text-neutral-400 mt-1">Water extraction footprints</span>
+              </div>
+            </div>
+
+            <!-- Danger Alert -->
+            <div id="sim-danger-alert" class="p-4 bg-red-500/10 border border-red-500/20 rounded-xl hidden items-start gap-3">
+              <i data-lucide="alert-triangle" class="w-5 h-5 text-red-400 shrink-0 mt-0.5"></i>
+              <div class="flex flex-col text-xs text-red-300">
+                <span class="font-bold">Unsustainability Compound Risk</span>
+                <span>Continuing this trajectory causes complete ocean credit depletion and ecosystem index collapse within 10 years.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== TAB: SCAN ==================== -->
+      <section id="tab-scan" class="tab-content hidden space-y-8">
+        <div>
+          <h1 class="font-display font-bold text-3xl tracking-tight">AI Receipt & Bill Scan</h1>
+          <p class="text-neutral-400 text-sm">Submit grocery receipts, water bills, or electricity statements using OCR scanning.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <!-- Left: Upload files -->
+          <div class="glass-panel p-6 rounded-2xl space-y-6">
+            <h3 class="font-bold text-lg">Document Dropper</h3>
+            
+            <div class="border border-dashed border-white/10 rounded-xl p-8 text-center flex flex-col items-center justify-center bg-black/20 hover:border-emerald-500/30 transition-colors">
+              <i data-lucide="upload" class="w-10 h-10 text-neutral-500 mb-4"></i>
+              <span class="text-sm font-semibold mb-1">Drag and drop file here</span>
+              <span class="text-xs text-neutral-500 mb-4">PDF, JPG, PNG up to 10MB</span>
+              <input type="file" id="dashboard-file-upload" class="hidden" onchange="triggerMockUpload(this.files[0] ? this.files[0].name : '')">
+              <label for="dashboard-file-upload" class="px-4 py-2 bg-white/5 border border-white/10 hover:bg-white/10 rounded-lg text-xs font-semibold cursor-pointer transition-colors">
+                Browse Files
+              </label>
+            </div>
+
+            <div class="space-y-3">
+              <span class="text-xs font-bold text-neutral-500 uppercase tracking-wider">Simulation Upload Presets</span>
+              <div class="grid grid-cols-2 gap-2">
+                <button onclick="triggerMockUpload('grocery_receipt.png')" class="p-3 text-left bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl transition-all text-xs flex items-center gap-2">
+                  <i data-lucide="shopping-bag" class="w-4 h-4 text-emerald-400"></i> Grocery Receipt
+                </button>
+                <button onclick="triggerMockUpload('electricity_bill_july.pdf')" class="p-3 text-left bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl transition-all text-xs flex items-center gap-2">
+                  <i data-lucide="zap" class="w-4 h-4 text-yellow-400"></i> Electric Bill
+                </button>
+                <button onclick="triggerMockUpload('water_utility_bill.pdf')" class="p-3 text-left bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl transition-all text-xs flex items-center gap-2">
+                  <i data-lucide="droplet" class="w-4 h-4 text-sky-400"></i> Water Invoice
+                </button>
+                <button onclick="triggerMockUpload('recycling_photo.jpg')" class="p-3 text-left bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl transition-all text-xs flex items-center gap-2">
+                  <i data-lucide="scan" class="w-4 h-4 text-violet-400"></i> Plastic Bottle
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Extraction outcomes -->
+          <div class="glass-panel p-6 rounded-2xl lg:col-span-2 space-y-6 min-h-[300px]">
+            <div class="flex justify-between items-center pb-4 border-b border-white/5">
+              <h3 class="font-bold text-lg">Extraction Results</h3>
+              <span id="scan-verified-badge" class="px-2.5 py-1 rounded bg-emerald-500/10 text-emerald-400 text-xs font-semibold hidden items-center gap-1.5">
+                <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Authenticated via OCR
+              </span>
+            </div>
+
+            <!-- Loader -->
+            <div id="scan-loader" class="hidden py-20 text-center flex flex-col items-center justify-center space-y-4">
+              <i data-lucide="scan" class="w-12 h-12 text-emerald-400 animate-spin"></i>
+              <div class="flex flex-col">
+                <span class="font-semibold text-sm">Processing file details...</span>
+                <span class="text-xs text-neutral-500">AI scanning line items and calculating carbon intensity</span>
+              </div>
+            </div>
+
+            <!-- Empty state -->
+            <div id="scan-empty-state" class="py-20 text-center text-neutral-500 text-sm flex flex-col items-center justify-center">
+              <i data-lucide="scan" class="w-10 h-10 mb-2 opacity-35"></i>
+              <span>No document scanned yet. Select an upload preset above or import a file.</span>
+            </div>
+
+            <!-- Result content -->
+            <div id="scan-result-content" class="hidden space-y-6">
+              <!-- Summary Grid -->
+              <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div class="p-4 bg-white/5 rounded-xl border border-white/5">
+                  <span class="text-[10px] uppercase font-bold text-neutral-500">Document Type</span>
+                  <p id="res-doc-type" class="text-base font-bold mt-1 text-white">RECEIPT</p>
+                </div>
+                <div class="p-4 bg-white/5 rounded-xl border border-white/5">
+                  <span class="text-[10px] uppercase font-bold text-neutral-500">Merchant/Issuer</span>
+                  <p id="res-merchant" class="text-base font-bold mt-1 text-white">Organic Foods</p>
+                </div>
+                <div class="p-4 bg-white/5 rounded-xl border border-white/5">
+                  <span class="text-[10px] uppercase font-bold text-neutral-500">Billing Amount</span>
+                  <p id="res-amount" class="text-base font-bold mt-1 text-yellow-400">$54.20</p>
+                </div>
+              </div>
+
+              <!-- Metric tags -->
+              <div id="res-metrics-bar" class="p-4 bg-emerald-500/5 border border-emerald-500/10 rounded-xl space-y-2 text-xs">
+                <!-- Injected dynamically -->
+              </div>
+
+              <!-- Table items -->
+              <div id="res-table-container" class="space-y-3 hidden">
+                <span class="text-xs font-bold text-neutral-400">Parsed Products & Classification</span>
+                <div class="border border-white/5 rounded-xl overflow-hidden text-xs">
+                  <table class="w-full text-left">
+                    <thead class="bg-white/5 font-semibold">
+                      <tr>
+                        <th class="p-3">Product Name</th>
+                        <th class="p-3">Category</th>
+                        <th class="p-3 text-right">Price</th>
+                        <th class="p-3 text-center">Carbon Load</th>
+                      </tr>
+                    </thead>
+                    <tbody id="res-items-table" class="divide-y divide-white/5">
+                      <!-- Injected dynamically -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Recycling Details -->
+              <div id="res-recycling-container" class="p-4 bg-white/5 border border-white/5 rounded-xl text-xs space-y-2 hidden">
+                <div>Recycling Class: <span id="res-recycle-class" class="font-semibold text-white"></span></div>
+                <div>Instructions: <span id="res-recycle-instruction" class="text-neutral-400"></span></div>
+              </div>
+
+              <!-- AI suggestions -->
+              <div class="space-y-3">
+                <span class="text-xs font-bold text-neutral-400">AI Substitution Directives</span>
+                <div id="res-recommendations-list" class="space-y-2">
+                  <!-- Injected dynamically -->
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== TAB: WALLET ==================== -->
+      <section id="tab-wallet" class="tab-content hidden space-y-8">
+        <div class="flex justify-between items-center">
+          <div>
+            <h1 class="font-display font-bold text-3xl tracking-tight">Carbon Wallet</h1>
+            <p class="text-neutral-400 text-sm">Spend earned EcoCoins on global tree sponsorships, NGO offsets, or local green gear.</p>
+          </div>
+          <div class="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
+            <i data-lucide="coins" class="w-4 h-4 text-emerald-400"></i>
+            <span id="wallet-balance-indicator" class="font-display font-bold text-emerald-400">2,450 EcoCoins</span>
+          </div>
+        </div>
+
+        <!-- Ledger highlights -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="glass-panel p-6 rounded-2xl">
+            <span class="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Equivalent Offsets</span>
+            <div class="flex items-baseline gap-1 mt-2">
+              <span class="text-3xl font-display font-bold text-white">2.45</span>
+              <span class="text-xs text-neutral-500">Tons CO₂</span>
+            </div>
+            <p class="text-xs text-neutral-400 mt-2">Based on total accumulated coin values</p>
+          </div>
+
+          <div class="glass-panel p-6 rounded-2xl">
+            <span class="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Total Earned Lifetime</span>
+            <div class="flex items-baseline gap-1 mt-2">
+              <span class="text-3xl font-display font-bold text-emerald-400 glow-text-emerald">2,950</span>
+              <span class="text-xs text-neutral-500">EcoCoins</span>
+            </div>
+            <p class="text-xs text-neutral-400 mt-2">Continuous clean habit logs</p>
+          </div>
+
+          <div class="glass-panel p-6 rounded-2xl">
+            <span class="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Real Tree Planted Count</span>
+            <div class="flex items-baseline gap-1 mt-2">
+              <span id="wallet-trees-planted" class="text-3xl font-display font-bold text-sky-400 glow-text-sky">1 Tree</span>
+            </div>
+            <p class="text-xs text-neutral-400 mt-2">Contributed via previous offsets sponsorships</p>
+          </div>
+        </div>
+
+        <!-- Marketplace success toast -->
+        <div id="wallet-success-alert" class="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl hidden items-center gap-3">
+          <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-400"></i>
+          <div class="flex flex-col text-xs text-emerald-300">
+            <span class="font-bold">Purchase Confirmed!</span>
+            <span>Successfully redeemed item. Your wallet EcoCoin balances have been synced.</span>
+          </div>
+        </div>
+
+        <!-- Ledger/Catalog grids -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div class="glass-panel p-6 rounded-2xl lg:col-span-2 space-y-6">
+            <h3 class="font-bold text-lg">Eco-Marketplace</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              
+              <div class="p-5 bg-white/5 border border-white/5 hover:border-emerald-500/25 rounded-2xl flex flex-col justify-between space-y-4">
+                <div>
+                  <div class="flex justify-between items-start">
+                    <div class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-emerald-400">
+                      <i data-lucide="leaf"></i>
+                    </div>
+                    <span class="text-xs font-bold text-emerald-400">500 Coins</span>
+                  </div>
+                  <h4 class="text-sm font-bold mt-4">Plant 1 Tree (WWF Initiative)</h4>
+                  <p class="text-xs text-neutral-400 mt-1">We sponsor a mangrove tree in Madagascar. Offsets 22kg CO₂ yearly.</p>
+                </div>
+                <button onclick="spendCoins('Plant 1 Tree (WWF)', 500)" class="w-full py-2 bg-white/5 hover:bg-emerald-500 hover:text-black rounded-lg text-xs font-semibold transition-colors">
+                  Redeem Reward
+                </button>
+              </div>
+
+              <div class="p-5 bg-white/5 border border-white/5 hover:border-emerald-500/25 rounded-2xl flex flex-col justify-between space-y-4">
+                <div>
+                  <div class="flex justify-between items-start">
+                    <div class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-emerald-400">
+                      <i data-lucide="heart"></i>
+                    </div>
+                    <span class="text-xs font-bold text-emerald-400">1000 Coins</span>
+                  </div>
+                  <h4 class="text-sm font-bold mt-4">$10 Greenpeace Contribution</h4>
+                  <p class="text-xs text-neutral-400 mt-1">Direct corporate donation for plastic pollution and ocean campaigns.</p>
+                </div>
+                <button onclick="spendCoins('$10 Greenpeace Contribution', 1000)" class="w-full py-2 bg-white/5 hover:bg-emerald-500 hover:text-black rounded-lg text-xs font-semibold transition-colors">
+                  Redeem Reward
+                </button>
+              </div>
+
+              <div class="p-5 bg-white/5 border border-white/5 hover:border-emerald-500/25 rounded-2xl flex flex-col justify-between space-y-4">
+                <div>
+                  <div class="flex justify-between items-start">
+                    <div class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-emerald-400">
+                      <i data-lucide="shopping-bag"></i>
+                    </div>
+                    <span class="text-xs font-bold text-emerald-400">800 Coins</span>
+                  </div>
+                  <h4 class="text-sm font-bold mt-4">Bamboo Reusable Coffee Flask</h4>
+                  <p class="text-xs text-neutral-400 mt-1">Shipped to your campus address to bypass disposable cups.</p>
+                </div>
+                <button onclick="spendCoins('Bamboo Flask', 800)" class="w-full py-2 bg-white/5 hover:bg-emerald-500 hover:text-black rounded-lg text-xs font-semibold transition-colors">
+                  Redeem Reward
+                </button>
+              </div>
+
+              <div class="p-5 bg-white/5 border border-white/5 hover:border-emerald-500/25 rounded-2xl flex flex-col justify-between space-y-4">
+                <div>
+                  <div class="flex justify-between items-start">
+                    <div class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-emerald-400">
+                      <i data-lucide="gift"></i>
+                    </div>
+                    <span class="text-xs font-bold text-emerald-400">400 Coins</span>
+                  </div>
+                  <h4 class="text-sm font-bold mt-4">100kg CO₂ Carbon Offset</h4>
+                  <p class="text-xs text-neutral-400 mt-1">Directly retire certified VCS standard carbon units.</p>
+                </div>
+                <button onclick="spendCoins('100kg Offset', 400)" class="w-full py-2 bg-white/5 hover:bg-emerald-500 hover:text-black rounded-lg text-xs font-semibold transition-colors">
+                  Redeem Reward
+                </button>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Transaction Ledger -->
+          <div class="glass-panel p-6 rounded-2xl space-y-6">
+            <h3 class="font-bold text-lg">Carbon Ledger</h3>
+            <div id="wallet-ledger-list" class="space-y-4">
+              <!-- JS injected -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== TAB: COMMUNITY ==================== -->
+      <section id="tab-community" class="tab-content hidden space-y-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="glass-panel p-6 rounded-2xl">
+            <span class="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Campus Sustainability Index</span>
+            <div class="flex items-baseline gap-1 mt-2">
+              <span class="text-3xl font-display font-bold text-emerald-400 glow-text-emerald">78.5%</span>
+              <span class="text-xs text-neutral-500">Tier A</span>
+            </div>
+            <p class="text-xs text-neutral-400 mt-2">Aggregated from 1,420 active campus users</p>
+          </div>
+
+          <div class="glass-panel p-6 rounded-2xl">
+            <span class="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Campus Forest Size</span>
+            <div class="flex items-baseline gap-1 mt-2">
+              <span class="text-3xl font-display font-bold text-white">401</span>
+              <span class="text-xs text-neutral-500">Planted Trees</span>
+            </div>
+            <p class="text-xs text-neutral-400 mt-2">Trees contributed collectively via challenges</p>
+          </div>
+
+          <div class="glass-panel p-6 rounded-2xl">
+            <span class="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Active Campus Rank</span>
+            <div class="flex items-baseline gap-1 mt-2">
+              <span class="text-3xl font-display font-bold text-sky-400 glow-text-sky">#3</span>
+              <span class="text-xs text-neutral-500">out of 12 colleges</span>
+            </div>
+            <p class="text-xs text-neutral-400 mt-2">Recalculated every hour</p>
+          </div>
+        </div>
+
+        <!-- Campus Canopy visual forest -->
+        <div class="glass-panel p-6 rounded-2xl space-y-6">
+          <div class="flex justify-between items-center">
+            <div>
+              <h3 class="font-bold text-lg">Shared Campus Forest Canopy</h3>
+              <p class="text-xs text-neutral-400">Interactive representation of trees grown through completed department challenges.</p>
+            </div>
+            <i data-lucide="leaf" class="w-5 h-5 text-emerald-400"></i>
+          </div>
+
+          <!-- Tree grid mock -->
+          <div class="p-8 bg-black/40 rounded-xl border border-white/5 flex flex-wrap gap-4 justify-center">
+            <!-- 32 Mock Trees -->
+            <script>
+              for(let i=0; i<32; i++) {
+                const colors = i % 3 === 0 ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.15)]" : i % 3 === 1 ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500" : "bg-yellow-500/10 border-yellow-500/20 text-yellow-500";
+                document.write(`
+                  <div class="w-8 h-8 rounded-lg flex items-center justify-center border transition-all duration-300 hover:scale-125 ${colors}" title="Tree #${i+1}">
+                    <i data-lucide="leaf" class="w-4 h-4"></i>
+                  </div>
+                `);
+              }
+            </script>
+          </div>
+        </div>
+
+        <!-- Department Standing vs Friends standing -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          
+          <div class="glass-panel p-6 rounded-2xl space-y-4">
+            <h3 class="font-bold text-lg">Department Standing</h3>
+            <div class="space-y-3">
+              <div class="flex justify-between items-center p-3 bg-white/5 border border-white/5 rounded-xl text-xs">
+                <div class="flex gap-3 items-center">
+                  <span class="font-bold text-neutral-500 w-5">#1</span>
+                  <div class="flex flex-col">
+                    <span class="font-semibold text-white">Computer Science & Eng</span>
+                    <span class="text-[10px] text-neutral-500">342 Members &bull; 124 Trees</span>
+                  </div>
+                </div>
+                <span class="font-bold text-emerald-400">86.4 Index</span>
+              </div>
+              <div class="flex justify-between items-center p-3 bg-white/5 border border-white/5 rounded-xl text-xs">
+                <div class="flex gap-3 items-center">
+                  <span class="font-bold text-neutral-500 w-5">#2</span>
+                  <div class="flex flex-col">
+                    <span class="font-semibold text-white">Business School</span>
+                    <span class="text-[10px] text-neutral-500">290 Members &bull; 98 Trees</span>
+                  </div>
+                </div>
+                <span class="font-bold text-emerald-400">81.2 Index</span>
+              </div>
+              <div class="flex justify-between items-center p-3 bg-white/5 border border-white/5 rounded-xl text-xs">
+                <div class="flex gap-3 items-center">
+                  <span class="font-bold text-neutral-500 w-5">#3</span>
+                  <div class="flex flex-col">
+                    <span class="font-semibold text-white">Mechanical Engineering</span>
+                    <span class="text-[10px] text-neutral-500">215 Members &bull; 82 Trees</span>
+                  </div>
+                </div>
+                <span class="font-bold text-emerald-400">78.5 Index</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-panel p-6 rounded-2xl space-y-4">
+            <h3 class="font-bold text-lg">Friends Standing</h3>
+            <div class="space-y-3">
+              <div class="flex justify-between items-center p-3 bg-white/5 border border-white/5 rounded-xl text-xs">
+                <div class="flex gap-3 items-center">
+                  <span class="font-bold text-neutral-500 w-5">#1</span>
+                  <div class="flex flex-col">
+                    <span class="font-semibold text-white">Alice Smith</span>
+                    <span class="text-[10px] text-neutral-500">Saved: 190kg CO₂</span>
+                  </div>
+                </div>
+                <span class="font-bold text-sky-400">795 XP</span>
+              </div>
+              <div class="flex justify-between items-center p-3 bg-white/5 border border-white/5 rounded-xl text-xs">
+                <div class="flex gap-3 items-center">
+                  <span class="font-bold text-neutral-500 w-5">#2</span>
+                  <div class="flex flex-col">
+                    <span class="font-semibold text-white">John Doe (You)</span>
+                    <span class="text-[10px] text-neutral-500">Saved: 148.2kg CO₂</span>
+                  </div>
+                </div>
+                <span class="font-bold text-sky-400">742 XP</span>
+              </div>
+              <div class="flex justify-between items-center p-3 bg-white/5 border border-white/5 rounded-xl text-xs">
+                <div class="flex gap-3 items-center">
+                  <span class="font-bold text-neutral-500 w-5">#3</span>
+                  <div class="flex flex-col">
+                    <span class="font-semibold text-white">Bob Johnson</span>
+                    <span class="text-[10px] text-neutral-500">Saved: 120kg CO₂</span>
+                  </div>
+                </div>
+                <span class="font-bold text-sky-400">710 XP</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ==================== TAB: COACH CHAT ==================== -->
+      <section id="tab-coach" class="tab-content hidden h-[calc(100vh-8rem)] flex flex-col justify-between space-y-6">
+        <div class="flex justify-between items-center">
+          <div>
+            <h1 class="font-display font-bold text-3xl tracking-tight">AI Sustainability Coach</h1>
+            <p class="text-neutral-400 text-sm">自然语言对话，智能解析您的碳消耗结构并提供低碳升级方案。</p>
+          </div>
+          <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-semibold">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5 animate-pulse"></i> Active Coach
+          </div>
+        </div>
+
+        <!-- Chat area -->
+        <div id="coach-chat-viewport" class="flex-1 glass-panel rounded-2xl p-6 overflow-y-auto space-y-4 min-h-[350px]">
+          <div class="flex gap-3 max-w-[75%]">
+            <div class="w-8 h-8 rounded-full bg-emerald-500 text-black flex items-center justify-center font-bold text-xs shrink-0">AI</div>
+            <div class="p-4 bg-white/5 border border-white/5 rounded-2xl rounded-tl-none text-sm text-neutral-200">
+              <p>Hello John! I have analyzed your carbon history. Your electricity usage has a peak spike. How can I help you improve your sustainability standing today?</p>
+              <span class="text-[10px] text-neutral-500 mt-2 block text-right">10:00 AM</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Inputs and presets -->
+        <div class="space-y-4">
+          <div class="flex flex-wrap gap-2 text-xs">
+            <button onclick="sendCoachPreset('Why did my electricity bill spike?')" class="px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/5 text-neutral-400 hover:text-white transition-colors">&bull; Peak Hour Bills</button>
+            <button onclick="sendCoachPreset('Show me alternatives for grocery items')" class="px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/5 text-neutral-400 hover:text-white transition-colors">&bull; Food Replacements</button>
+            <button onclick="sendCoachPreset('How to reduce transport emissions?')" class="px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/5 text-neutral-400 hover:text-white transition-colors">&bull; Commuting Footprint</button>
+          </div>
+
+          <div class="flex gap-3">
+            <input type="text" id="coach-chat-input" placeholder="Ask your coach a question..." class="flex-1 bg-white/5 border border-white/10 focus:border-emerald-500/50 rounded-xl px-4 py-3 text-sm focus:outline-none transition-colors text-white">
+            <button onclick="sendCoachMessage()" class="px-5 bg-emerald-500 hover:bg-emerald-600 text-black font-semibold rounded-xl flex items-center justify-center shadow-lg transition-all">
+              <i data-lucide="send" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== TAB: RESUME ==================== -->
+      <section id="tab-resume" class="tab-content hidden space-y-8">
+        <div class="flex justify-between items-center print-hide">
+          <div>
+            <h1 class="font-display font-bold text-3xl tracking-tight">Eco Resume</h1>
+            <p class="text-neutral-400 text-sm">Certified, verifiable resume of your carbon footprint saved and trees planted.</p>
+          </div>
+          <button onclick="window.print()" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-black font-semibold rounded-xl text-xs flex items-center gap-2 transition-all shadow-lg shadow-emerald-500/10">
+            <i data-lucide="printer" class="w-3.5 h-3.5"></i> Print / Export PDF
+          </button>
+        </div>
+
+        <!-- Resume card -->
+        <div class="glass-panel p-8 md:p-12 rounded-3xl border border-white/5 bg-gradient-to-b from-white/[0.02] to-transparent max-w-4xl mx-auto shadow-2xl space-y-8 relative overflow-hidden print:bg-white print:text-black print:p-0 print:border-none print:shadow-none">
+          <div class="absolute inset-0 bg-[radial-gradient(#10b981_0.5px,transparent_0.5px)] [background-size:24px_24px] opacity-[0.03] pointer-events-none print-hide"></div>
+          
+          <div class="flex flex-col md:flex-row justify-between items-start md:items-center pb-6 border-b border-white/10 print:border-black/10">
+            <div>
+              <h2 class="font-display font-bold text-2xl text-white print:text-black">John Doe</h2>
+              <p class="text-emerald-400 text-sm font-semibold mt-1">Sustainability Practitioner &bull; Rank #42</p>
+              <div class="flex gap-4 text-xs text-neutral-400 mt-3 print:text-neutral-700">
+                <span class="flex items-center gap-1"><i data-lucide="map-pin" class="w-3.5 h-3.5"></i> Campus Section B</span>
+                <span class="flex items-center gap-1"><i data-lucide="mail" class="w-3.5 h-3.5"></i> john.doe@university.edu</span>
+              </div>
+            </div>
+            <div class="mt-4 md:mt-0 px-4 py-2.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 rounded-2xl flex items-center gap-2 print:border-black/20 print:text-black">
+              <i data-lucide="shield-check" class="w-5 h-5 text-emerald-400 print:text-black"></i>
+              <div class="flex flex-col text-left">
+                <span class="text-[10px] text-neutral-400 print:text-neutral-700 uppercase font-bold leading-none">EcoScore index</span>
+                <span class="text-lg font-bold font-display leading-tight">742 / 1000</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Impact numbers -->
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="p-4 bg-white/5 border border-white/5 rounded-xl text-center print:border-black/10">
+              <span class="text-[10px] text-neutral-500 print:text-neutral-700 font-bold uppercase">CO₂ Footprint Saved</span>
+              <p id="resume-co2-saved" class="text-xl font-bold mt-1 text-emerald-400">148.2 kg</p>
+            </div>
+            <div class="p-4 bg-white/5 border border-white/5 rounded-xl text-center print:border-black/10">
+              <span class="text-[10px] text-neutral-500 print:text-neutral-700 font-bold uppercase">Water Conserved</span>
+              <p id="resume-water-saved" class="text-xl font-bold mt-1 text-sky-400">1,240 L</p>
+            </div>
+            <div class="p-4 bg-white/5 border border-white/5 rounded-xl text-center print:border-black/10">
+              <span class="text-[10px] text-neutral-500 print:text-neutral-700 font-bold uppercase">Energy Conserved</span>
+              <p id="resume-energy-saved" class="text-xl font-bold mt-1 text-white print:text-black">85.4 kWh</p>
+            </div>
+            <div class="p-4 bg-white/5 border border-white/5 rounded-xl text-center print:border-black/10">
+              <span class="text-[10px] text-neutral-500 print:text-neutral-700 font-bold uppercase">Eco Coins Redemptions</span>
+              <p id="resume-redemptions" class="text-xl font-bold mt-1 text-yellow-400">1 Tree</p>
+            </div>
+          </div>
+
+          <!-- Badges -->
+          <div class="space-y-4">
+            <h3 class="text-sm font-bold text-neutral-400 print:text-neutral-800 uppercase tracking-wider">Certified Eco Badges</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div class="p-4 bg-white/5 border border-white/5 rounded-2xl flex gap-3 print:border-black/10">
+                <i data-lucide="award" class="w-8 h-8 text-yellow-400 shrink-0"></i>
+                <div class="flex flex-col text-xs">
+                  <span class="font-bold text-white print:text-black">Zero Emissions Hero</span>
+                  <span class="text-neutral-400 mt-1 leading-relaxed print:text-neutral-700">Logged 100km of bike commuting.</span>
+                </div>
+              </div>
+              <div class="p-4 bg-white/5 border border-white/5 rounded-2xl flex gap-3 print:border-black/10">
+                <i data-lucide="award" class="w-8 h-8 text-neutral-400 shrink-0"></i>
+                <div class="flex flex-col text-xs">
+                  <span class="font-bold text-white print:text-black">Hydration Guardian</span>
+                  <span class="text-neutral-400 mt-1 leading-relaxed print:text-neutral-700">Avoided 50 plastic cups.</span>
+                </div>
+              </div>
+              <div class="p-4 bg-white/5 border border-white/5 rounded-2xl flex gap-3 print:border-black/10">
+                <i data-lucide="award" class="w-8 h-8 text-sky-400 animate-pulse shrink-0"></i>
+                <div class="flex flex-col text-xs">
+                  <span class="font-bold text-white print:text-black">Grid Guardian</span>
+                  <span class="text-neutral-400 mt-1 leading-relaxed print:text-neutral-700">Cut 15% electric spikes.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Chronology -->
+          <div class="space-y-4">
+            <h3 class="text-sm font-bold text-neutral-400 print:text-neutral-800 uppercase tracking-wider">Verified Activities Log</h3>
+            <div class="space-y-3">
+              <div class="flex gap-4 items-start text-xs border-b border-white/5 pb-3 print:border-black/10">
+                <span class="font-bold text-emerald-400 w-20 shrink-0 print:text-emerald-600">July 2026</span>
+                <span class="text-neutral-300 print:text-black">Processed utility electricity invoice, recorded 420 kWh.</span>
+              </div>
+              <div class="flex gap-4 items-start text-xs border-b border-white/5 pb-3 print:border-black/10">
+                <span class="font-bold text-emerald-400 w-20 shrink-0 print:text-emerald-600">June 2026</span>
+                <span class="text-neutral-300 print:text-black">Achieved 'Plant-Based Power' weekly challenge certification.</span>
+              </div>
+              <div class="flex gap-4 items-start text-xs border-b border-white/5 pb-3 print:border-black/10">
+                <span class="font-bold text-emerald-400 w-20 shrink-0 print:text-emerald-600">May 2026</span>
+                <span class="text-neutral-300 print:text-black">Sponsored 1 mangrove tree planting in WWF Madagascar program.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-6 border-t border-white/10 text-center text-[10px] text-neutral-500 flex justify-between items-center print:border-black/10 print:text-neutral-700">
+            <span>Verification Hash: SHA256-EC0V3RS3A1L0G</span>
+            <span>EcoVerse Autonomous OS Certified</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== TAB: ADMIN ==================== -->
+      <section id="tab-admin" class="tab-content hidden space-y-8">
+        <div class="flex justify-between items-center">
+          <div class="flex items-center gap-2">
+            <i data-lucide="shield-alert" class="w-6 h-6 text-red-400"></i>
+            <h1 class="font-display font-bold text-3xl tracking-tight">Admin Panel</h1>
+          </div>
+          <button onclick="switchTab('console')" class="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl text-xs font-semibold transition-colors">
+            Return to Console
+          </button>
+        </div>
+
+        <!-- Metrics -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div class="glass-panel p-5 rounded-2xl">
+            <span class="text-xs uppercase font-bold text-neutral-400">Total Active Profiles</span>
+            <p class="text-2xl font-bold font-display mt-2 text-white">1,420</p>
+            <span class="text-[10px] text-emerald-400">+12 registered today</span>
+          </div>
+          <div class="glass-panel p-5 rounded-2xl">
+            <span class="text-xs uppercase font-bold text-neutral-400">OCR Queue Status</span>
+            <p class="text-2xl font-bold font-display mt-2 text-yellow-400">0 Pending</p>
+            <span class="text-[10px] text-neutral-400">Speed: 1.2s average</span>
+          </div>
+          <div class="glass-panel p-5 rounded-2xl">
+            <span class="text-xs uppercase font-bold text-neutral-400">AI Tokens Transferred</span>
+            <p class="text-2xl font-bold font-display mt-2 text-sky-400">84.2K</p>
+            <span class="text-[10px] text-neutral-400">Monthly budget: 15% used</span>
+          </div>
+          <div class="glass-panel p-5 rounded-2xl">
+            <span class="text-xs uppercase font-bold text-neutral-400">System Health index</span>
+            <p class="text-2xl font-bold font-display mt-2 text-emerald-400">Nominal</p>
+            <span class="text-[10px] text-emerald-400">Database Uptime: 99.98%</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <!-- Challenge controller -->
+          <div class="glass-panel p-6 rounded-2xl lg:col-span-2 space-y-6">
+            <h3 class="font-bold text-lg flex items-center gap-2"><i data-lucide="check-square" class="w-5 h-5 text-emerald-400"></i> Challenge Management</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-3 bg-white/5 p-4 rounded-xl border border-white/5">
+              <input type="text" id="admin-new-title" placeholder="Challenge Title..." class="bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs focus:outline-none text-white md:col-span-2">
+              <select id="admin-new-metric" class="bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs text-neutral-300 focus:outline-none">
+                <option value="ENERGY">ENERGY</option>
+                <option value="FOOD">FOOD</option>
+                <option value="TRANSPORT">TRANSPORT</option>
+                <option value="WASTE">WASTE</option>
+              </select>
+              <button onclick="adminAddChallenge()" class="py-2 bg-emerald-500 hover:bg-emerald-600 text-black font-semibold rounded-lg text-xs flex items-center justify-center gap-1 transition-colors">
+                <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> Add Mission
+              </button>
+            </div>
+
+            <div id="admin-challenges-list" class="space-y-3">
+              <!-- JS injected -->
+            </div>
+          </div>
+
+          <!-- Audit Logs -->
+          <div class="glass-panel p-6 rounded-2xl space-y-6">
+            <h3 class="font-bold text-lg flex items-center gap-2"><i data-lucide="refresh-cw" class="w-5 h-5 text-red-400"></i> Security Audit Log</h3>
+            <div id="admin-audit-logs" class="space-y-4">
+              <!-- JS injected -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- JS State Control logic -->
+  <script>
+    // State values
+    let activeTab = 'console';
+    let coinsBalance = 2450;
+    let treesPlantedCount = 1;
+    let co2SavedVal = 148.2;
+    let waterSavedVal = 1240;
+    let energySavedVal = 85.4;
+
+    // Simulation states
+    let simProfile = 'current';
+    let simYear = 5;
+
+    // Challenges State
+    let challenges = [
+      { id: 'c-1', title: 'Zero-Emission Commute', pts: 50, coins: 120, done: false, metric: 'TRANSPORT' },
+      { id: 'c-2', title: 'Plant-Based Power Lunch', pts: 60, coins: 150, done: true, metric: 'FOOD' },
+      { id: 'c-3', title: 'Phantom Load Patrol', pts: 30, coins: 80, done: false, metric: 'ENERGY' },
+    ];
+
+    // Audit logs
+    let auditLogs = [
+      { time: "10:35 AM", user: "system-engine", action: "Triggered Daily AI Smart Challenges reset for 1,420 users." },
+      { time: "09:42 AM", user: "john.doe@univ.edu", action: "Uploaded grocery receipt. OCR scan completed successfully." },
+      { time: "08:15 AM", user: "admin-principal", action: "Modified marketplace item price for 'Plant 1 Tree (WWF)'." },
+      { time: "07:00 AM", user: "cron-job", action: "Recalculated campus department rankings index." }
+    ];
+
+    // Chart instances
+    let consoleChart = null;
+
+    // Launch Dashboard
+    function enterDashboard() {
+      document.getElementById('landing-page').classList.add('hidden');
+      document.getElementById('dashboard-view').classList.remove('hidden');
+      lucide.createIcons();
+      initChart();
+      renderMissions();
+      renderLedger();
+      renderAdminChallenges();
+      renderAuditLogs();
+      
+      // GSAP Entrance
+      gsap.from("#dashboard-view", { opacity: 0, duration: 0.5 });
+    }
+
+    function exitDashboard() {
+      document.getElementById('dashboard-view').classList.add('hidden');
+      document.getElementById('landing-page').classList.remove('hidden');
+    }
+
+    // Tab switcher
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+      
+      // Navigation highlight
+      document.querySelectorAll('aside nav button').forEach(btn => {
+        btn.classList.remove('bg-emerald-500/10', 'text-emerald-400', 'border-emerald-500/25');
+        btn.classList.add('text-neutral-400', 'border-transparent');
+        const icon = btn.querySelector('i');
+        if (icon) {
+          icon.classList.remove('text-emerald-400');
+          icon.classList.add('text-neutral-400');
+        }
+      });
+      
+      const activeBtn = document.getElementById(`nav-${tabName}`);
+      if (activeBtn) {
+        activeBtn.classList.add('bg-emerald-500/10', 'text-emerald-400', 'border-emerald-500/25');
+        activeBtn.classList.remove('text-neutral-400', 'border-transparent');
+        const icon = activeBtn.querySelector('i');
+        if (icon) {
+          icon.classList.add('text-emerald-400');
+          icon.classList.remove('text-neutral-400');
+        }
+      }
+      
+      activeTab = tabName;
+      if (tabName === 'console' && !consoleChart) {
+        initChart();
+      }
+      
+      // Animate entry
+      gsap.from(`#tab-${tabName}`, { opacity: 0, y: 15, duration: 0.4 });
+    }
+
+    // Chart init
+    function initChart() {
+      const ctx = document.getElementById('consoleTrendChart');
+      if (!ctx) return;
+      
+      consoleChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+          datasets: [
+            {
+              label: 'Carbon (kg)',
+              data: [18, 15, 14, 22, 12, 9, 8],
+              borderColor: '#10b981',
+              backgroundColor: 'rgba(16, 185, 129, 0.1)',
+              fill: true,
+              tension: 0.4
+            },
+            {
+              label: 'Water (L / 10)',
+              data: [22, 19, 17, 31, 15, 12, 10],
+              borderColor: '#0ea5e9',
+              backgroundColor: 'rgba(14, 165, 233, 0.05)',
+              fill: true,
+              tension: 0.4
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            x: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#9ca3af' } },
+            y: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#9ca3af' } }
+          }
+        }
+      });
+    }
+
+    // Toggle Mission
+    function toggleMission(idx) {
+      challenges[idx].done = !challenges[idx].done;
+      if (challenges[idx].done) {
+        coinsBalance += challenges[idx].coins;
+        co2SavedVal += 2.5; // compound saved carbon
+        alert(`Challenge Completed! Earned +${challenges[idx].coins} EcoCoins.`);
+        
+        // Add log
+        auditLogs.unshift({
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          user: "john.doe@univ.edu",
+          action: `Completed challenge: ${challenges[idx].title}. Received ${challenges[idx].coins} EcoCoins.`
+        });
+      } else {
+        coinsBalance -= challenges[idx].coins;
+      }
+      
+      updateGlobalUI();
+      renderMissions();
+      renderLedger();
+      renderAuditLogs();
+    }
+
+    function updateGlobalUI() {
+      // Balance indicators
+      document.getElementById('wallet-balance-indicator').innerText = `${coinsBalance.toLocaleString()} EcoCoins`;
+      document.getElementById('wallet-trees-planted').innerText = `${treesPlantedCount} Tree${treesPlantedCount > 1 ? 's' : ''}`;
+      
+      // Console indicators
+      document.getElementById('console-co2-saved').innerText = co2SavedVal.toFixed(1);
+      document.getElementById('console-water-saved').innerText = waterSavedVal.toLocaleString();
+      document.getElementById('console-energy-saved').innerText = energySavedVal.toLocaleString();
+
+      // Resume indicators
+      document.getElementById('resume-co2-saved').innerText = `${co2SavedVal.toFixed(1)} kg`;
+      document.getElementById('resume-water-saved').innerText = `${waterSavedVal.toLocaleString()} L`;
+      document.getElementById('resume-energy-saved').innerText = `${energySavedVal.toLocaleString()} kWh`;
+      document.getElementById('resume-redemptions').innerText = `${treesPlantedCount} Tree${treesPlantedCount > 1 ? 's' : ''}`;
+    }
+
+    // Render missions
+    function renderMissions() {
+      const parent = document.getElementById('console-missions-list');
+      if (!parent) return;
+      
+      parent.innerHTML = '';
+      challenges.forEach((item, idx) => {
+        parent.innerHTML += `
+          <div onclick="toggleMission(${idx})" class="p-4 rounded-xl border transition-all duration-200 cursor-pointer flex items-center justify-between ${
+            item.done 
+              ? 'bg-emerald-500/5 border-emerald-500/25 text-neutral-400' 
+              : 'bg-white/5 border-white/5 hover:border-white/10 text-white'
+          }">
+            <div class="flex items-center gap-3">
+              <i data-lucide="${item.done ? 'check-circle-2' : 'circle'}" class="w-5 h-5 ${item.done ? 'text-emerald-500' : 'text-neutral-600'}"></i>
+              <div class="flex flex-col">
+                <span class="text-sm font-semibold ${item.done ? 'line-through' : ''}">${item.title}</span>
+                <span class="text-[10px] text-neutral-500">+${item.coins} EcoCoins &bull; +${item.pts} XP</span>
+              </div>
+            </div>
+            <i data-lucide="chevron-right" class="w-4 h-4 text-neutral-600"></i>
+          </div>
+        `;
+      });
+      lucide.createIcons();
+    }
+
+    // Future simulator logic
+    function setSimProfile(profile) {
+      simProfile = profile;
+      
+      // UI tabs
+      ['hyper', 'current', 'unsustainable'].forEach(p => {
+        document.getElementById(`btn-profile-${p}`).className = "py-2 text-xs font-semibold rounded-lg text-neutral-400 hover:text-white transition-colors";
+      });
+      document.getElementById(`btn-profile-${profile}`).className = "py-2 text-xs font-semibold rounded-lg bg-white/10 text-white transition-colors";
+      if (profile === 'unsustainable') {
+        document.getElementById(`btn-profile-unsustainable`).className = "py-2 text-xs font-semibold rounded-lg bg-red-500/20 text-red-400 border border-red-500/35 transition-colors";
+      }
+
+      runSimulation();
+    }
+
+    function setSimYear(year) {
+      simYear = year;
+      [1, 5, 10].forEach(y => {
+        document.getElementById(`btn-year-${y}`).className = "w-16 py-1.5 rounded-lg text-xs font-bold border border-white/10 text-neutral-400 hover:border-white/20 transition-all";
+      });
+      document.getElementById(`btn-year-${year}`).className = "w-16 py-1.5 rounded-lg text-xs font-bold border border-white text-white bg-white/5 transition-all";
+      runSimulation();
+    }
+
+    function runSimulation() {
+      let multiplier = 1.0;
+      if (simProfile === 'unsustainable') multiplier = 2.45;
+      if (simProfile === 'hyper') multiplier = 0.35;
+
+      const baseCo2 = 420 * 12 * simYear; // annual footprint
+      const baseMoney = 2400 * simYear;
+      const baseWater = 150000 * simYear;
+      const baseTrees = 15 * simYear;
+
+      const compFactor = 1.0 + (multiplier - 1.0) * (simYear * 0.15);
+
+      const resCo2 = Math.round(baseCo2 * compFactor);
+      const resMoney = Math.round(baseMoney * compFactor);
+      const resTrees = Math.round(baseTrees * compFactor);
+      const resWater = Math.round(baseWater * compFactor);
+
+      document.getElementById('sim-out-co2').innerText = `${resCo2.toLocaleString()} kg`;
+      document.getElementById('sim-out-money').innerText = `$${resMoney.toLocaleString()}`;
+      document.getElementById('sim-out-trees').innerText = `${resTrees} trees lost`;
+      document.getElementById('sim-out-water').innerText = `${resWater.toLocaleString()} L`;
+
+      // Twin Earth globe styles updating
+      const globeIcon = document.getElementById('twin-globe-icon');
+      const globeHolder = document.getElementById('twin-globe-holder');
+      const statusBadge = document.getElementById('twin-status-badge');
+      const plasticIndex = document.getElementById('twin-plastic-index');
+      const forestIndex = document.getElementById('twin-forest-index');
+      const wildlifeIndex = document.getElementById('twin-wildlife-index');
+      const dangerAlert = document.getElementById('sim-danger-alert');
+
+      if (simProfile === 'unsustainable') {
+        globeIcon.className = "w-20 h-20 text-red-500 transition-colors duration-500";
+        globeHolder.className = "w-36 h-36 rounded-full border-2 border-dashed border-red-500/30 flex items-center justify-center transition-all duration-300";
+        statusBadge.className = "px-2 py-0.5 rounded bg-red-500/10 text-red-400 text-xs font-semibold";
+        statusBadge.innerText = "Critical Deficit";
+        plasticIndex.className = "font-semibold text-red-400";
+        plasticIndex.innerText = "High Risk (78%)";
+        forestIndex.className = "font-semibold text-red-400";
+        forestIndex.innerText = "34% Loss";
+        wildlifeIndex.innerText = "Severely Restricted";
+        dangerAlert.classList.remove('hidden');
+        dangerAlert.classList.add('flex');
+      } else if (simProfile === 'hyper') {
+        globeIcon.className = "w-20 h-20 text-emerald-400 glow-text-emerald transition-colors duration-500";
+        globeHolder.className = "w-36 h-36 rounded-full border-2 border-dashed border-emerald-500/50 flex items-center justify-center transition-all duration-300";
+        statusBadge.className = "px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 text-xs font-semibold";
+        statusBadge.innerText = "Excellent Balance";
+        plasticIndex.className = "font-semibold text-emerald-400";
+        plasticIndex.innerText = "Avoided (0%)";
+        forestIndex.className = "font-semibold text-emerald-400";
+        forestIndex.innerText = "120% Canopy Growth";
+        wildlifeIndex.innerText = "Flourishing Biodiversity";
+        dangerAlert.classList.add('hidden');
+        dangerAlert.classList.remove('flex');
+      } else {
+        globeIcon.className = "w-20 h-20 text-sky-400 transition-colors duration-500";
+        globeHolder.className = "w-36 h-36 rounded-full border-2 border-dashed border-emerald-500/30 flex items-center justify-center transition-all duration-300";
+        statusBadge.className = "px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 text-xs font-semibold";
+        statusBadge.innerText = "Healthy State";
+        plasticIndex.className = "font-semibold text-emerald-400";
+        plasticIndex.innerText = "Optimal (12%)";
+        forestIndex.className = "font-semibold text-emerald-400";
+        forestIndex.innerText = "94% Growth";
+        wildlifeIndex.innerText = "Thriving";
+        dangerAlert.classList.add('hidden');
+        dangerAlert.classList.remove('flex');
+      }
+    }
+
+    // OCR simulation upload
+    function triggerMockUpload(fileName) {
+      if (!fileName) return;
+      document.getElementById('scan-empty-state').classList.add('hidden');
+      document.getElementById('scan-result-content').classList.add('hidden');
+      document.getElementById('scan-loader').classList.remove('hidden');
+      document.getElementById('scan-verified-badge').classList.add('hidden');
+
+      setTimeout(() => {
+        document.getElementById('scan-loader').classList.add('hidden');
+        document.getElementById('scan-result-content').classList.remove('hidden');
+        document.getElementById('scan-verified-badge').classList.remove('hidden');
+        document.getElementById('scan-verified-badge').classList.add('flex');
+
+        const metricsBar = document.getElementById('res-metrics-bar');
+        const itemsTable = document.getElementById('res-items-table');
+        const recList = document.getElementById('res-recommendations-list');
+        const tableContainer = document.getElementById('res-table-container');
+        const recycleContainer = document.getElementById('res-recycling-container');
+
+        // Reset elements
+        tableContainer.classList.add('hidden');
+        recycleContainer.classList.add('hidden');
+        metricsBar.innerHTML = '';
+        itemsTable.innerHTML = '';
+        recList.innerHTML = '';
+
+        if (fileName.includes("electricity")) {
+          document.getElementById('res-doc-type').innerText = "ELECTRICITY BILL";
+          document.getElementById('res-merchant').innerText = "City Grid Power";
+          document.getElementById('res-amount').innerText = "$145.50";
+
+          metricsBar.innerHTML = `
+            <span class="font-bold text-yellow-400">Electricity Carbon Summary</span>
+            <div class="grid grid-cols-2 gap-4 mt-1 text-[11px] text-neutral-300">
+              <div>Electricity Consumed: <span class="text-white font-semibold">420 kWh</span></div>
+              <div>Carbon Intensity: <span class="text-red-400 font-semibold">168.0 kg CO₂</span></div>
+            </div>
+          `;
+          recList.innerHTML = `
+            <div class="flex gap-2 p-3 bg-white/5 border border-white/5 rounded-xl text-xs text-neutral-300">
+              <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
+              <span>Unplug idle laptops & monitors. Phantom load drains average 5-10% utility energy daily.</span>
+            </div>
+            <div class="flex gap-2 p-3 bg-white/5 border border-white/5 rounded-xl text-xs text-neutral-300">
+              <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
+              <span>Shift heavy water and washing machine loads to off-peak slots (after 8 PM).</span>
+            </div>
+          `;
+
+          // Add coins
+          coinsBalance += 100;
+          energySavedVal += 42; // mock savings updated
+          alert("Bill Processed! Earned +100 EcoCoins.");
+          
+          auditLogs.unshift({
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            user: "john.doe@univ.edu",
+            action: `Uploaded electricity bill (420 kWh processed). Received 100 EcoCoins.`
+          });
+        }
+        else if (fileName.includes("water")) {
+          document.getElementById('res-doc-type').innerText = "WATER BILL";
+          document.getElementById('res-merchant').innerText = "Hydro Water Works";
+          document.getElementById('res-amount').innerText = "$62.40";
+
+          metricsBar.innerHTML = `
+            <span class="font-bold text-sky-400">Hydro Conservation Summary</span>
+            <div class="grid grid-cols-2 gap-4 mt-1 text-[11px] text-neutral-300">
+              <div>Freshwater Diverted: <span class="text-white font-semibold">12,400 L</span></div>
+              <div>Water Carbon Footprint: <span class="text-white font-semibold">3.7 kg CO₂</span></div>
+            </div>
+          `;
+          recList.innerHTML = `
+            <div class="flex gap-2 p-3 bg-white/5 border border-white/5 rounded-xl text-xs text-neutral-300">
+              <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
+              <span>Install low-flow sink aerators. Cuts daily shower flows by 2.5 Liters/min.</span>
+            </div>
+          `;
+
+          coinsBalance += 80;
+          waterSavedVal += 180;
+          alert("Water Bill Processed! Earned +80 EcoCoins.");
+          auditLogs.unshift({
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            user: "john.doe@univ.edu",
+            action: `Uploaded water bill (12,400 Liters logged). Received 80 EcoCoins.`
+          });
+        }
+        else if (fileName.includes("receipt") || fileName.includes("grocery")) {
+          document.getElementById('res-doc-type').innerText = "GROCERY RECEIPT";
+          document.getElementById('res-merchant').innerText = "Organic Foods Market";
+          document.getElementById('res-amount').innerText = "$54.20";
+
+          metricsBar.innerHTML = `
+            <span class="font-bold text-emerald-400">Product Extraction Carbon Load</span>
+            <div class="grid grid-cols-2 gap-4 mt-1 text-[11px] text-neutral-300">
+              <div>Carbon Footprint: <span class="text-red-400 font-semibold">8.4 kg CO₂</span></div>
+              <div>Plastic Avoided weight: <span class="text-emerald-400 font-semibold">+1.2 kg</span></div>
+            </div>
+          `;
+
+          tableContainer.classList.remove('hidden');
+          itemsTable.innerHTML = `
+            <tr class="hover:bg-white/5 border-b border-white/5">
+              <td class="p-3 font-medium text-white">Organic Tomatoes (Local)</td>
+              <td class="p-3 text-neutral-400">FOOD</td>
+              <td class="p-3 text-right">$4.50</td>
+              <td class="p-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400">LOW</span></td>
+            </tr>
+            <tr class="hover:bg-white/5 border-b border-white/5">
+              <td class="p-3 font-medium text-white">Imported Ribeye Beef Steak</td>
+              <td class="p-3 text-neutral-400">FOOD</td>
+              <td class="p-3 text-right">$24.00</td>
+              <td class="p-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-red-500/10 text-red-400">HIGH</span></td>
+            </tr>
+            <tr class="hover:bg-white/5 border-b border-white/5">
+              <td class="p-3 font-medium text-white">Single-use Water Bottles 6-Pack</td>
+              <td class="p-3 text-neutral-400">SHOPPING</td>
+              <td class="p-3 text-right">$3.99</td>
+              <td class="p-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-red-500/10 text-red-400">HIGH</span></td>
+            </tr>
+            <tr class="hover:bg-white/5">
+              <td class="p-3 font-medium text-white">Oat Milk 1L</td>
+              <td class="p-3 text-neutral-400">FOOD</td>
+              <td class="p-3 text-right">$4.20</td>
+              <td class="p-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400">LOW</span></td>
+            </tr>
+          `;
+
+          recList.innerHTML = `
+            <div class="flex gap-2 p-3 bg-white/5 border border-white/5 rounded-xl text-xs text-neutral-300">
+              <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
+              <span>Swap Imported Ribeye Steak for local poultry or legumes. Cuts shopping emissions by 85%.</span>
+            </div>
+            <div class="flex gap-2 p-3 bg-white/5 border border-white/5 rounded-xl text-xs text-neutral-300">
+              <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
+              <span>Avoid single-use bottled water. Install a reusable carbon pitcher and save $150 annually.</span>
+            </div>
+          `;
+
+          coinsBalance += 50;
+          co2SavedVal += 4.5;
+          alert("Grocery Receipt Scanned! Earned +50 EcoCoins.");
+          auditLogs.unshift({
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            user: "john.doe@univ.edu",
+            action: `Uploaded shopping receipt (4 items extracted). Received 50 EcoCoins.`
+          });
+        }
+        else {
+          // recycling / photo
+          document.getElementById('res-doc-type').innerText = "RECYCLING SCAN";
+          document.getElementById('res-merchant').innerText = "Mobile Camera Capture";
+          document.getElementById('res-amount').innerText = "N/A";
+
+          metricsBar.innerHTML = `
+            <span class="font-bold text-violet-400">Material Analysis Summary</span>
+            <div class="grid grid-cols-2 gap-4 mt-1 text-[11px] text-neutral-300">
+              <div>CO₂ Prevented: <span class="text-white font-semibold">+0.15 kg</span></div>
+              <div>Plastic Diverted: <span class="text-white font-semibold">0.05 kg</span></div>
+            </div>
+          `;
+
+          recycleContainer.classList.remove('hidden');
+          document.getElementById('res-recycle-class').innerText = "PET Plastic (Code 1)";
+          document.getElementById('res-recycle-instruction').innerText = "Rinse bottle thoroughly, screw caps back on, and dump into the Campus Blue Recycling Bin.";
+
+          recList.innerHTML = `
+            <div class="flex gap-2 p-3 bg-white/5 border border-white/5 rounded-xl text-xs text-neutral-300">
+              <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
+              <span>Keep caps on plastic bottles, as detached caps jam conveyor belts in local facilities.</span>
+            </div>
+          `;
+
+          coinsBalance += 15;
+          co2SavedVal += 0.15;
+          alert("Recycling Scan Completed! Earned +15 EcoCoins.");
+          auditLogs.unshift({
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            user: "john.doe@univ.edu",
+            action: `Uploaded recycling camera capture (PET Plastic code 1). Received 15 EcoCoins.`
+          });
+        }
+
+        updateGlobalUI();
+        renderLedger();
+        renderAuditLogs();
+        lucide.createIcons();
+      }, 2000);
+    }
+
+    // Wallet redeems
+    function spendCoins(itemName, price) {
+      if (coinsBalance >= price) {
+        coinsBalance -= price;
+        if (itemName.includes("WWF")) {
+          treesPlantedCount += 1;
+        }
+
+        // Show success alert
+        const alertBox = document.getElementById('wallet-success-alert');
+        alertBox.classList.remove('hidden');
+        alertBox.classList.add('flex');
+        
+        // Add transaction
+        auditLogs.unshift({
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          user: "john.doe@univ.edu",
+          action: `Spent ${price} EcoCoins on: ${itemName}.`
+        });
+
+        setTimeout(() => {
+          alertBox.classList.add('hidden');
+          alertBox.classList.remove('flex');
+        }, 3000);
+
+        updateGlobalUI();
+        renderLedger();
+        renderAuditLogs();
+      } else {
+        alert("Insufficient EcoCoins balance.");
+      }
+    }
+
+    // Ledger render
+    function renderLedger() {
+      const parent = document.getElementById('wallet-ledger-list');
+      if (!parent) return;
+
+      parent.innerHTML = `
+        <div class="flex justify-between items-center text-xs">
+          <div class="flex gap-3 items-center">
+            <div class="w-8 h-8 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold"><i data-lucide="arrow-up-right" class="w-4 h-4"></i></div>
+            <div class="flex flex-col">
+              <span class="font-medium text-white max-w-[150px] truncate">Current Balance</span>
+              <span class="text-[10px] text-neutral-500">Synced</span>
+            </div>
+          </div>
+          <span class="font-bold text-emerald-400">+${coinsBalance}</span>
+        </div>
+      `;
+
+      auditLogs.forEach((item, idx) => {
+        if (idx > 3) return; // limit to 4 items
+        const isSpend = item.action.includes("Spent");
+        const amtText = isSpend ? `-${item.action.match(/Spent (\d+)/)?.[1] || 0}` : `+${item.action.match(/Received (\d+)/)?.[1] || 15}`;
+        const color = isSpend ? 'text-red-400' : 'text-emerald-400';
+        const arrow = isSpend ? 'arrow-down-right' : 'arrow-up-right';
+        const circleBg = isSpend ? 'bg-red-500/10 text-red-400' : 'bg-emerald-500/10 text-emerald-400';
+
+        parent.innerHTML += `
+          <div class="flex justify-between items-center text-xs">
+            <div class="flex gap-3 items-center">
+              <div class="w-8 h-8 rounded-full ${circleBg} flex items-center justify-center font-bold"><i data-lucide="${arrow}" class="w-4 h-4"></i></div>
+              <div class="flex flex-col">
+                <span class="font-medium text-white max-w-[150px] truncate">${item.action}</span>
+                <span class="text-[10px] text-neutral-500">${item.time}</span>
+              </div>
+            </div>
+            <span class="font-bold ${color}">${amtText}</span>
+          </div>
+        `;
+      });
+      lucide.createIcons();
+    }
+
+    // AI coach interaction
+    function sendCoachPreset(text) {
+      document.getElementById('coach-chat-input').value = text;
+      sendCoachMessage();
+    }
+
+    function sendCoachMessage() {
+      const inputEl = document.getElementById('coach-chat-input');
+      const text = inputEl.value.trim();
+      if (!text) return;
+
+      const viewport = document.getElementById('coach-chat-viewport');
+      
+      // Append user bubble
+      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      viewport.innerHTML += `
+        <div class="flex gap-3 max-w-[75%] ml-auto flex-row-reverse">
+          <div class="w-8 h-8 rounded-full bg-sky-500 text-white flex items-center justify-center font-bold text-xs shrink-0"><i data-lucide="user" class="w-4 h-4"></i></div>
+          <div class="p-4 bg-sky-500/15 border border-sky-500/20 text-white rounded-2xl rounded-tr-none text-sm">
+            <p>${text}</p>
+            <span class="text-[10px] text-neutral-500 mt-2 block text-right">${timeStr}</span>
+          </div>
+        </div>
+      `;
+      inputEl.value = '';
+      viewport.scrollTop = viewport.scrollHeight;
+      lucide.createIcons();
+
+      // Append loader
+      const loaderId = `loader-${Date.now()}`;
+      viewport.innerHTML += `
+        <div id="${loaderId}" class="flex gap-3 max-w-[70%]">
+          <div class="w-8 h-8 rounded-full bg-emerald-500 text-black flex items-center justify-center font-bold text-xs shrink-0">AI</div>
+          <div class="p-4 bg-white/5 border border-white/5 rounded-2xl rounded-tl-none text-sm text-neutral-500 flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-neutral-500 animate-bounce"></span>
+            <span class="w-1.5 h-1.5 rounded-full bg-neutral-500 animate-bounce" style="animation-delay: 150ms;"></span>
+            <span class="w-1.5 h-1.5 rounded-full bg-neutral-500 animate-bounce" style="animation-delay: 300ms;"></span>
+          </div>
+        </div>
+      `;
+      viewport.scrollTop = viewport.scrollHeight;
+
+      setTimeout(() => {
+        document.getElementById(loaderId).remove();
+        let reply = "I analyzed your parameters. Shift appliance work hours or increase vegetable density to reduce your carbon index.";
+        const low = text.toLowerCase();
+        if (low.includes("electricity") || low.includes("bill")) {
+          reply = "Your electricity profile shows peak consumption spikes. Running laundry or high-drain dishes after 8 PM shifts you to low carbon grid density, reducing emissions by 15%.";
+        } else if (low.includes("food") || low.includes("grocery") || low.includes("steak") || low.includes("meat")) {
+          reply = "Your grocery scan extracted High Carbon items like Imported Ribeye Steak. Replacing beef with regional poultry or tofu saves 80% food emissions.";
+        } else if (low.includes("transport") || low.includes("commute") || low.includes("bike")) {
+          reply = "Commuting via public transit or active biking avoids average 2.4kg of CO₂ per 10km. Log your commutes daily to receive EcoCoins.";
+        }
+
+        viewport.innerHTML += `
+          <div class="flex gap-3 max-w-[75%]">
+            <div class="w-8 h-8 rounded-full bg-emerald-500 text-black flex items-center justify-center font-bold text-xs shrink-0">AI</div>
+            <div class="p-4 bg-white/5 border border-white/5 rounded-2xl rounded-tl-none text-sm text-neutral-200">
+              <p>${reply}</p>
+              <span class="text-[10px] text-neutral-500 mt-2 block text-right">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+            </div>
+          </div>
+        `;
+        viewport.scrollTop = viewport.scrollHeight;
+        lucide.createIcons();
+      }, 1200);
+    }
+
+    // Admin Challenge controller
+    function adminAddChallenge() {
+      const titleEl = document.getElementById('admin-new-title');
+      const metricEl = document.getElementById('admin-new-metric');
+      const title = titleEl.value.trim();
+      const metric = metricEl.value;
+
+      if (!title) return;
+
+      const newId = `c-${challenges.length + 1}`;
+      challenges.push({
+        id: newId,
+        title: title,
+        pts: 60,
+        coins: 100,
+        done: false,
+        metric: metric
+      });
+
+      titleEl.value = '';
+
+      // Log event
+      auditLogs.unshift({
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        user: "admin-principal",
+        action: `Added new daily challenge: ${title} (${metric}).`
+      });
+
+      renderMissions();
+      renderAdminChallenges();
+      renderAuditLogs();
+      alert("New daily challenge created successfully!");
+    }
+
+    function adminDeleteChallenge(idx) {
+      const deletedTitle = challenges[idx].title;
+      challenges.splice(idx, 1);
+
+      auditLogs.unshift({
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        user: "admin-principal",
+        action: `Deleted daily challenge: ${deletedTitle}.`
+      });
+
+      renderMissions();
+      renderAdminChallenges();
+      renderAuditLogs();
+    }
+
+    function renderAdminChallenges() {
+      const parent = document.getElementById('admin-challenges-list');
+      if (!parent) return;
+
+      parent.innerHTML = '';
+      challenges.forEach((item, idx) => {
+        parent.innerHTML += `
+          <div class="flex justify-between items-center p-3 bg-white/5 border border-white/5 rounded-xl text-xs">
+            <div class="flex flex-col">
+              <span class="font-semibold text-white">${item.title}</span>
+              <span class="text-[10px] text-neutral-500">Metric: ${item.metric} &bull; Reward: ${item.coins} EcoCoins</span>
+            </div>
+            <button onclick="adminDeleteChallenge(${idx})" class="p-2 text-neutral-500 hover:text-red-400 transition-colors">
+              <i data-lucide="trash" class="w-4 h-4"></i>
+            </button>
+          </div>
+        `;
+      });
+      lucide.createIcons();
+    }
+
+    function renderAuditLogs() {
+      const parent = document.getElementById('admin-audit-logs');
+      if (!parent) return;
+
+      parent.innerHTML = '';
+      auditLogs.forEach((log) => {
+        parent.innerHTML += `
+          <div class="text-xs space-y-1 pb-3 border-b border-white/5 last:border-0 last:pb-0">
+            <div class="flex justify-between items-center">
+              <span class="font-bold text-neutral-400">${log.user}</span>
+              <span class="text-[10px] text-neutral-500">${log.time}</span>
+            </div>
+            <p class="text-neutral-300 leading-relaxed">${log.action}</p>
+          </div>
+        `;
+      });
+      lucide.createIcons();
+    }
+
+    // Dynamic landing page counters increments
+    setInterval(() => {
+      const co2El = document.getElementById('co2-counter');
+      const treesEl = document.getElementById('trees-counter');
+      const waterEl = document.getElementById('water-counter');
+
+      if (co2El) {
+        let val = parseInt(co2El.innerText.replace(/,/g, '').replace(' kg', ''));
+        val += Math.floor(Math.random() * 3) + 1;
+        co2El.innerText = `${val.toLocaleString()} kg`;
+      }
+      if (treesEl) {
+        let val = parseInt(treesEl.innerText.replace(/,/g, ''));
+        if (Math.random() > 0.85) {
+          val += 1;
+          treesEl.innerText = val.toLocaleString();
+        }
+      }
+      if (waterEl) {
+        let val = parseInt(waterEl.innerText.replace(/,/g, '').replace(' L', ''));
+        val += Math.floor(Math.random() * 12) + 2;
+        waterEl.innerText = `${val.toLocaleString()} L`;
+      }
+    }, 1500);
+
+    // Initial setups
+    window.onload = () => {
+      lucide.createIcons();
+      runSimulation();
+    }
+  </script>
+</body>
+</html>

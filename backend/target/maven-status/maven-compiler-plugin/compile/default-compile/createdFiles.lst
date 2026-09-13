@@ -1,0 +1,7 @@
+com\ecoverse\backend\controller\ActivityController.class
+com\ecoverse\backend\repository\ActivityRepository.class
+com\ecoverse\backend\service\ActivityService.class
+com\ecoverse\backend\BackendApplication.class
+com\ecoverse\backend\dto\ActivityRequestDTO.class
+com\ecoverse\backend\dto\ActivityResponseDTO.class
+com\ecoverse\backend\entity\ActivityEntity.class
