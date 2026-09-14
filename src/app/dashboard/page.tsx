@@ -40,7 +40,13 @@ export default function DashboardConsole() {
       <TrackActivityModal
         isOpen={isTrackModalOpen}
         onClose={() => setIsTrackModalOpen(false)}
-        onSuccess={(result) => { if (result?.ecoScoreImpact !== undefined && result?.ecoScoreImpact !== null) { setEcoScore((prev) => Math.max(0, Math.min(1000, prev + result.ecoScoreImpact))); }}}
+        onSuccess={(result) => {
+          if (result?.ecoScoreImpact !== undefined && result?.ecoScoreImpact !== null) {
+            setEcoScore((prev) =>
+              Math.max(0, Math.min(1000, prev + result.ecoScoreImpact))
+            );
+          }
+        }}
       />
 
 
@@ -76,7 +82,8 @@ export default function DashboardConsole() {
           </div>
           <div className="flex items-baseline gap-1">
             <span className="text-4xl font-display font-bold text-emerald-400 glow-text-emerald">
-              {ecoScore}</span>
+              {ecoScore}
+            </span>
             <span className="text-xs text-neutral-500">/ 1000</span>
           </div>
           <p className="text-xs text-neutral-400 mt-2 flex items-center gap-1">
