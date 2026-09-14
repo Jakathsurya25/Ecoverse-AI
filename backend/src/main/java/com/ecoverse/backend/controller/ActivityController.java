@@ -39,4 +39,10 @@ public class ActivityController {
         List<ActivityResponseDTO> todayActivities = activityService.getTodayActivities();
         return ResponseEntity.ok(todayActivities);
     }
+
+    @GetMapping("/summary")
+    public ResponseEntity<com.ecoverse.backend.dto.AnalyticsSummaryDTO> getAnalyticsSummary() {
+        com.ecoverse.backend.dto.AnalyticsSummaryDTO summary = activityService.getAnalyticsSummary();
+        return ResponseEntity.ok(summary);
+    }
 }

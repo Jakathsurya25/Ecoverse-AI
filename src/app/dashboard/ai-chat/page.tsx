@@ -2,34 +2,62 @@
 
 import React, { useState } from "react";
 import { MessageSquare, Send, Sparkles, User, ShieldAlert } from "lucide-react";
-import { AISustainabilityEngine, ChatMessage } from "@/services/ai";
+import { ChatMessage } from "@/services/ai";
 
 export default function AIChatPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([
-    { sender: "AI", message: "Hello John! I have analyzed your carbon history. Your electricity usage has a peak spike. How can I help you improve your sustainability standing today?", timestamp: "10:00 AM" }
+    {
+      sender: "AI",
+      message: "Hello John! I am your AI Eco Assistant. Ask me anything about your EcoScore, Track Activity, Digital Twin, or general sustainability directives!",
+      timestamp: "10:00 AM"
+    }
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
 
   const sendMessage = async (presetText?: string) => {
     const text = presetText || input;
-    if (!text.trim()) return;
+    if (!text.trim() || loading) return;
 
-    const userMsg: ChatMessage = { sender: "USER", message: text, timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) };
-    setMessages(prev => [...prev, userMsg]);
+    const userMsg: ChatMessage = {
+      sender: "USER",
+      message: text,
+      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+    };
+    setMessages((prev) => [...prev, userMsg]);
     if (!presetText) setInput("");
     setLoading(true);
 
-    setTimeout(async () => {
-      const responseText = await AISustainabilityEngine.chatWithCoach(text, messages);
-      const aiMsg: ChatMessage = { 
-        sender: "AI", 
-        message: responseText, 
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
+    try {
+      const res = await fetch("http://localhost:8080/api/assistant", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ message: text }),
+      });
+
+      if (!res.ok) {
+        throw new Error(`Assistant returned HTTP ${res.status}`);
+      }
+
+      const data = await res.json();
+      const aiMsg: ChatMessage = {
+        sender: "AI",
+        message: data.answer || "No response generated.",
+        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
       };
-      setMessages(prev => [...prev, aiMsg]);
+      setMessages((prev) => [...prev, aiMsg]);
+    } catch (err: any) {
+      const errorMsg: ChatMessage = {
+        sender: "AI",
+        message: err.message || "Failed to reach Spring Boot AI Eco Assistant backend.",
+        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+      };
+      setMessages((prev) => [...prev, errorMsg]);
+    } finally {
       setLoading(false);
-    }, 1200);
+    }
   };
 
   return (
@@ -37,8 +65,8 @@ export default function AIChatPage() {
       {/* Header */}
       <div className="flex justify-between items-center shrink-0">
         <div>
-          <h1 className="font-display font-bold text-3xl tracking-tight">AI Sustainability Coach</h1>
-          <p className="text-neutral-400 text-sm">Naturally consult with our AI sustainability model trained on your lifestyle logs.</p>
+          <h1 className="font-display font-bold text-3xl tracking-tight">AI Eco Assistant</h1>
+          <p className="text-neutral-400 text-sm">Consult with our AI assistant for real-time guidance on your sustainability logs and EcoTracker features.</p>
         </div>
         <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-semibold">
           <Sparkles className="w-3.5 h-3.5 animate-pulse" /> Active
@@ -57,7 +85,7 @@ export default function AIChatPage() {
             <div className={`p-4 rounded-2xl text-sm leading-relaxed ${
               msg.sender === "USER" ? "bg-sky-500/15 border border-sky-500/20 text-white rounded-tr-none" : "bg-white/5 border border-white/5 text-neutral-200 rounded-tl-none"
             }`}>
-              <p>{msg.message}</p>
+              <p className="whitespace-pre-wrap">{msg.message}</p>
               <span className="text-[10px] text-neutral-500 mt-2 block text-right">{msg.timestamp}</span>
             </div>
           </div>
@@ -79,22 +107,22 @@ export default function AIChatPage() {
         {/* Preset suggestions */}
         <div className="flex flex-wrap gap-2 text-xs">
           <button 
-            onClick={() => sendMessage("Why did my electricity bill spike?")}
+            onClick={() => sendMessage("What is Eco Score?")}
             className="px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/5 text-neutral-400 hover:text-white transition-colors"
           >
-            &bull; Peak Hour Bills
+            &bull; What is Eco Score?
           </button>
           <button 
-            onClick={() => sendMessage("Show me alternatives for grocery items")}
+            onClick={() => sendMessage("How does Track Activity work?")}
             className="px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/5 text-neutral-400 hover:text-white transition-colors"
           >
-            &bull; Food Replacements
+            &bull; How Track Activity works
           </button>
           <button 
-            onClick={() => sendMessage("How to reduce transport emissions?")}
+            onClick={() => sendMessage("What is Digital Twin?")}
             className="px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/5 text-neutral-400 hover:text-white transition-colors"
           >
-            &bull; Commuting Footprint
+            &bull; Digital Twin Info
           </button>
         </div>
 
@@ -105,12 +133,13 @@ export default function AIChatPage() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-            placeholder="Consult with your Coach... (e.g. 'How can I optimize my food footprint?')"
+            placeholder="Ask AI Eco Assistant... (e.g. 'What is Eco Score?')"
             className="flex-1 bg-white/5 border border-white/10 focus:border-emerald-500/50 rounded-xl px-4 py-3 text-sm focus:outline-none transition-colors text-white"
           />
           <button 
             onClick={() => sendMessage()}
-            className="px-5 bg-emerald-500 hover:bg-emerald-600 text-black font-semibold rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/10 hover:shadow-emerald-500/20 transition-all"
+            disabled={loading}
+            className="px-5 bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-black font-semibold rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/10 hover:shadow-emerald-500/20 transition-all"
           >
             <Send className="w-4 h-4" />
           </button>

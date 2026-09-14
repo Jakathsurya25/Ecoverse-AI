@@ -8,9 +8,28 @@ export default function DigitalTwinPage() {
   const [timelineMode, setTimelineMode] = useState<"current" | "unsustainable" | "hyper">("current");
   const [selectedYear, setSelectedYear] = useState<1 | 5 | 10>(5);
   const [projections, setProjections] = useState<any[]>([]);
+  const [backendImpact, setBackendImpact] = useState<any>(null);
 
   useEffect(() => {
-    const baseCo2 = 420; // kg CO2 monthly average
+    const fetchFutureImpact = async () => {
+      try {
+        const res = await fetch("http://localhost:8080/api/future-impact");
+        if (res.ok) {
+          const data = await res.json();
+          setBackendImpact(data);
+        }
+      } catch (e) {
+        console.warn("Future Impact backend unavailable, using default baseline.", e);
+      }
+    };
+    fetchFutureImpact();
+  }, []);
+
+  useEffect(() => {
+    const baseCo2 = backendImpact !== null
+      ? (backendImpact.projectedMonthlyCo2Kg ?? 0)
+      : 420;
+
     let multiplier = 1.0;
     if (timelineMode === "unsustainable") multiplier = 2.4;
     if (timelineMode === "hyper") multiplier = 0.35;
@@ -18,7 +37,7 @@ export default function DigitalTwinPage() {
     AISustainabilityEngine.predictFutureEmissions(baseCo2, multiplier).then((res) => {
       setProjections(res);
     });
-  }, [timelineMode]);
+  }, [timelineMode, backendImpact]);
 
   const activeProj = projections.find(p => p.year === selectedYear) || {
     emissions: 0,
@@ -33,6 +52,12 @@ export default function DigitalTwinPage() {
       <div>
         <h1 className="font-display font-bold text-3xl tracking-tight">AI Digital Twin & Future Simulator</h1>
         <p className="text-neutral-400 text-sm">Visualize your environmental shadow and run forward simulation models.</p>
+        {backendImpact?.message && (
+          <p className="text-xs text-emerald-400/80 mt-1 flex items-center gap-1.5 font-medium">
+            <Info className="w-3.5 h-3.5 shrink-0" />
+            {backendImpact.message}
+          </p>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

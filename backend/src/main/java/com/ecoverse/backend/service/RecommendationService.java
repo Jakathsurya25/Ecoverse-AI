@@ -118,60 +118,73 @@ public class RecommendationService {
     }
 
     private String callGeminiApi(String apiKey, String prompt) {
-        try {
-            String endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key="
-                    + URLEncoder.encode(apiKey, StandardCharsets.UTF_8);
+        List<String> models = Arrays.asList(
+                "gemini-3.5-flash-lite",
+                "gemini-flash-lite-latest",
+                "gemini-3.8-flash",
+                "gemini-3.7-flash",
+                "gemini-3.6-flash",
+                "gemini-3.5-flash"
+        );
 
-            Map<String, Object> textPart = Collections.singletonMap("text", prompt);
-            Map<String, Object> partsWrapper = Collections.singletonMap("parts", Collections.singletonList(textPart));
-            Map<String, Object> contentMap = new HashMap<>();
-            contentMap.put("contents", Collections.singletonList(partsWrapper));
+        int lastStatusCode = 0;
 
-            Map<String, Object> genConfig = new HashMap<>();
-            genConfig.put("temperature", 0.2);
-            genConfig.put("responseMimeType", "application/json");
-            contentMap.put("generationConfig", genConfig);
+        for (String modelName : models) {
+            try {
+                logger.info("Attempting Gemini AI call using model: {}", modelName);
+                String endpoint = "https://generativelanguage.googleapis.com/v1beta/models/"
+                        + modelName + ":generateContent?key="
+                        + URLEncoder.encode(apiKey, StandardCharsets.UTF_8);
 
-            String requestBody = objectMapper.writeValueAsString(contentMap);
+                Map<String, Object> textPart = Collections.singletonMap("text", prompt);
+                Map<String, Object> partsWrapper = Collections.singletonMap("parts", Collections.singletonList(textPart));
+                Map<String, Object> contentMap = new HashMap<>();
+                contentMap.put("contents", Collections.singletonList(partsWrapper));
 
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(endpoint))
-                    .timeout(Duration.ofSeconds(20))
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(requestBody, StandardCharsets.UTF_8))
-                    .build();
+                Map<String, Object> genConfig = new HashMap<>();
+                genConfig.put("temperature", 0.2);
+                genConfig.put("responseMimeType", "application/json");
+                contentMap.put("generationConfig", genConfig);
 
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                String requestBody = objectMapper.writeValueAsString(contentMap);
 
-            if (response.statusCode() != 200) {
-                logger.error("Gemini API call failed with HTTP status {}: {}", response.statusCode(), response.body());
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create(endpoint))
+                        .timeout(Duration.ofSeconds(12))
+                        .header("Content-Type", "application/json")
+                        .POST(HttpRequest.BodyPublishers.ofString(requestBody, StandardCharsets.UTF_8))
+                        .build();
+
+                HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+                if (response.statusCode() == 200) {
+                    logger.info("Gemini model {} succeeded with HTTP 200", modelName);
+                    JsonNode root = objectMapper.readTree(response.body());
+                    JsonNode candidates = root.path("candidates");
+                    if (candidates.isArray() && !candidates.isEmpty()) {
+                        JsonNode textNode = candidates.get(0).path("content").path("parts").get(0).path("text");
+                        if (!textNode.isMissingNode() && !textNode.asText().trim().isEmpty()) {
+                            return textNode.asText().trim();
+                        }
+                    }
+                }
+
+                lastStatusCode = response.statusCode();
+                logger.warn("Gemini model {} returned HTTP status {}", modelName, response.statusCode());
+
                 if (response.statusCode() == 400 || response.statusCode() == 403) {
+                    logger.error("Gemini API authentication failed with HTTP status {}", response.statusCode());
                     throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Gemini API authentication failed. Verify your GEMINI_API_KEY.");
                 }
-                throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Gemini AI service returned status " + response.statusCode());
+            } catch (ResponseStatusException rse) {
+                throw rse;
+            } catch (Exception e) {
+                logger.warn("Exception calling Gemini model {}: {}", modelName, e.getMessage());
             }
-
-            JsonNode root = objectMapper.readTree(response.body());
-            JsonNode candidates = root.path("candidates");
-            if (!candidates.isArray() || candidates.isEmpty()) {
-                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Empty response from Gemini AI.");
-            }
-
-            JsonNode textNode = candidates.get(0).path("content").path("parts").get(0).path("text");
-            if (textNode.isMissingNode() || textNode.asText().trim().isEmpty()) {
-                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Missing text in Gemini AI response.");
-            }
-
-            return textNode.asText().trim();
-        } catch (ResponseStatusException rse) {
-            throw rse;
-        } catch (java.net.http.HttpTimeoutException te) {
-            logger.error("Gemini API timed out: {}", te.getMessage());
-            throw new ResponseStatusException(HttpStatus.GATEWAY_TIMEOUT, "Gemini AI request timed out.");
-        } catch (Exception e) {
-            logger.error("Error communicating with Gemini API: {}", e.getMessage(), e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to communicate with AI recommendation engine.");
         }
+
+        logger.error("All fallback Gemini models failed. Last status code: {}", lastStatusCode);
+        throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Gemini AI service returned status " + (lastStatusCode != 0 ? lastStatusCode : 502));
     }
 
     private List<RecommendationDTO> parseAndValidateRecommendations(String rawText) {

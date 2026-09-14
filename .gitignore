@@ -5,3 +5,4 @@ backend/target/
 .env
 .env.local
 *.env
+backend/boot-error.txt

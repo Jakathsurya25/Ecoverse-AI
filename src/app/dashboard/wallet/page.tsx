@@ -1,38 +1,125 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Coins, Heart, ShoppingBag, Leaf, Gift, ArrowDownRight, ArrowUpRight, CheckCircle2 } from "lucide-react";
 
+interface Transaction {
+  id: number;
+  desc: String;
+  amount: number;
+  type: string;
+  date: string;
+}
+
+interface MarketplaceItem {
+  id?: number;
+  title: string;
+  desc: string;
+  cost: number;
+  type: string;
+  icon: any;
+}
+
 export default function WalletPage() {
-  const [balance, setBalance] = useState(2450);
+  const [balance, setBalance] = useState(0);
+  const [equivalentOffsets, setEquivalentOffsets] = useState(0);
+  const [lifetimeEarned, setLifetimeEarned] = useState(0);
+  const [realWorldImpact, setRealWorldImpact] = useState("0 Trees");
   const [showRedeemSuccess, setShowRedeemSuccess] = useState(false);
   const [redeemedItem, setRedeemedItem] = useState("");
 
-  const transactions = [
-    { id: 1, desc: "Recycling Photo Upload (PET Plastic)", amount: 15, type: "EARN", date: "Today" },
-    { id: 2, desc: "Completed Challenge: Plant-Based Power", amount: 150, type: "EARN", date: "Today" },
-    { id: 3, desc: "Utility Bill OCR Bonus", amount: 100, type: "EARN", date: "Yesterday" },
-    { id: 4, desc: "Redemption: Plant 1 Tree (WWF Initiative)", amount: -500, type: "SPEND", date: "2 days ago" },
-    { id: 5, desc: "Completed Challenge: Phantom Load Patrol", amount: 80, type: "EARN", date: "3 days ago" },
-  ];
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [marketplaceItems, setMarketplaceItems] = useState<MarketplaceItem[]>([]);
 
-  const handleRedeem = (item: string, cost: number) => {
-    if (balance >= cost) {
-      setBalance(balance - cost);
-      setRedeemedItem(item);
-      setShowRedeemSuccess(true);
-      setTimeout(() => setShowRedeemSuccess(false), 3000);
-    } else {
-      alert("Insufficient EcoCoins balance.");
+  const fetchWalletData = async () => {
+    try {
+      const res = await fetch("http://localhost:8080/api/wallet");
+      if (res.ok) {
+        const data = await res.json();
+        setBalance(data.balance ?? 0);
+        setLifetimeEarned(data.lifetimeEarned ?? 0);
+        setEquivalentOffsets(data.equivalentOffsetsTons ?? 0);
+        if (data.realWorldImpactText) {
+          setRealWorldImpact(data.realWorldImpactText.replace(" Planted", ""));
+        }
+      }
+    } catch (e) {
+      console.warn("Wallet backend unavailable.", e);
     }
   };
 
-  const marketplaceItems = [
-    { title: "Plant 1 Tree (WWF)", desc: "We'll plant a real mangrove tree in Kenya. Includes digital tree log.", cost: 500, type: "tree", icon: Leaf },
-    { title: "$10 Donation to Greenpeace", desc: "Contribute to ocean conservation and anti-plastic campaigns.", cost: 1000, type: "ngo", icon: Heart },
-    { title: "Eco-Friendly Bamboo Tumbler", desc: "A double-insulated tumbler to replace single-use coffee cups.", cost: 800, type: "product", icon: ShoppingBag },
-    { title: "100kg CO₂ Carbon Offset", desc: "Purchase certified carbon credits to offset your transport activities.", cost: 400, type: "offset", icon: Gift },
-  ];
+  const fetchLedger = async () => {
+    try {
+      const res = await fetch("http://localhost:8080/api/wallet/ledger");
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          setTransactions(data);
+        }
+      }
+    } catch (e) {
+      console.warn("Ledger backend unavailable.", e);
+    }
+  };
+
+  const fetchRewards = async () => {
+    try {
+      const res = await fetch("http://localhost:8080/api/wallet/rewards");
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          const mapped = data.map((item: any) => {
+            let icon = Leaf;
+            if (item.type === "ngo") icon = Heart;
+            if (item.type === "product") icon = ShoppingBag;
+            if (item.type === "offset") icon = Gift;
+            return {
+              id: item.id,
+              title: item.title,
+              desc: item.desc || item.description,
+              cost: item.cost,
+              type: item.type,
+              icon: icon,
+            };
+          });
+          setMarketplaceItems(mapped);
+        }
+      }
+    } catch (e) {
+      console.warn("Rewards backend unavailable.", e);
+    }
+  };
+
+  useEffect(() => {
+    fetchWalletData();
+    fetchLedger();
+    fetchRewards();
+  }, []);
+
+  const handleRedeem = async (item: MarketplaceItem) => {
+    try {
+      const res = await fetch("http://localhost:8080/api/wallet/redeem", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ rewardId: item.id, rewardTitle: item.title }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setBalance(data.newBalance);
+        setRedeemedItem(item.title);
+        setShowRedeemSuccess(true);
+        setTimeout(() => setShowRedeemSuccess(false), 3000);
+        fetchWalletData();
+        fetchLedger();
+      } else {
+        const errorData = await res.json().catch(() => null);
+        alert(errorData?.message || "Insufficient EcoCoins balance.");
+      }
+    } catch (e) {
+      alert("Insufficient EcoCoins balance or server connection error.");
+    }
+  };
 
   return (
     <div className="space-y-8 animate-fade-in-up">
@@ -53,7 +140,7 @@ export default function WalletPage() {
         <div className="glass-panel p-6 rounded-2xl relative overflow-hidden">
           <span className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Equivalent Offsets</span>
           <div className="flex items-baseline gap-1 mt-2">
-            <span className="text-3xl font-display font-bold text-white">2.45</span>
+            <span className="text-3xl font-display font-bold text-white">{equivalentOffsets.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
             <span className="text-xs text-neutral-500">Tons CO₂</span>
           </div>
           <p className="text-xs text-neutral-400 mt-2">Corresponds to your total accumulated EcoCoins</p>
@@ -62,7 +149,7 @@ export default function WalletPage() {
         <div className="glass-panel p-6 rounded-2xl relative overflow-hidden">
           <span className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Total Coins Earned</span>
           <div className="flex items-baseline gap-1 mt-2">
-            <span className="text-3xl font-display font-bold text-emerald-400 glow-text-emerald">2,950</span>
+            <span className="text-3xl font-display font-bold text-emerald-400 glow-text-emerald">{lifetimeEarned.toLocaleString()}</span>
             <span className="text-xs text-neutral-500">EcoCoins</span>
           </div>
           <p className="text-xs text-neutral-400 mt-2">Cumulative lifetime earnings</p>
@@ -71,7 +158,7 @@ export default function WalletPage() {
         <div className="glass-panel p-6 rounded-2xl relative overflow-hidden">
           <span className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Real-world Impact</span>
           <div className="flex items-baseline gap-1 mt-2">
-            <span className="text-3xl font-display font-bold text-sky-400 glow-text-sky">1 Tree</span>
+            <span className="text-3xl font-display font-bold text-sky-400 glow-text-sky">{realWorldImpact}</span>
             <span className="text-xs text-neutral-500">Planted</span>
           </div>
           <p className="text-xs text-neutral-400 mt-2">Contributed via previous redemptions</p>
@@ -110,7 +197,7 @@ export default function WalletPage() {
                     <p className="text-xs text-neutral-400 mt-1 leading-relaxed">{item.desc}</p>
                   </div>
                   <button 
-                    onClick={() => handleRedeem(item.title, item.cost)}
+                    onClick={() => handleRedeem(item)}
                     className="w-full py-2 bg-white/5 hover:bg-emerald-500 hover:text-black rounded-lg text-xs font-semibold transition-colors"
                   >
                     Redeem Reward

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Zap, Award, TrendingUp, Sparkles, Leaf, Shield,
   ChevronRight, Calendar, Info, RefreshCw, CheckCircle2
@@ -11,15 +11,48 @@ import {
 
 import TrackActivityModal from "@/components/TrackActivityModal";
 
-const data = [
-  { name: "Mon", carbon: 18, water: 220, electricity: 14 },
-  { name: "Tue", carbon: 15, water: 190, electricity: 12 },
-  { name: "Wed", carbon: 14, water: 170, electricity: 11 },
-  { name: "Thu", carbon: 22, water: 310, electricity: 19 },
-  { name: "Fri", carbon: 12, water: 150, electricity: 10 },
-  { name: "Sat", carbon: 9, water: 120, electricity: 8 },
-  { name: "Sun", carbon: 8, water: 100, electricity: 7 },
-];
+interface Recommendation {
+  category: string;
+  title: string;
+  description: string;
+  potentialSavingsCo2?: number;
+  difficulty?: string;
+}
+
+interface DailyTrend {
+  name: string;
+  date: string;
+  carbon: number;
+  water: number;
+  electricity: number;
+}
+
+interface AnalyticsSummary {
+  totalActivities: number;
+  totalCo2EmissionsKg: number;
+  totalCo2SavedTransportKg: number;
+  totalTransportDistanceKm: number;
+  totalElectricityKwh: number;
+  totalWaterLitres: number;
+  totalPlasticKg: number;
+  totalWasteKg: number;
+  activeDays: number;
+  dailyTrends: DailyTrend[];
+}
+
+interface ActivityRecord {
+  id: number;
+  transportMode?: string;
+  transportDistanceKm?: number;
+  electricityKwh?: number;
+  waterLitres?: number;
+  plasticKg?: number;
+  wasteKg?: number;
+  estimatedCo2EmissionsKg?: number;
+  co2SavedTransport?: number;
+  ecoScoreImpact?: number;
+  recordedAt?: string;
+}
 
 export default function DashboardConsole() {
   const [isTrackModalOpen, setIsTrackModalOpen] = useState(false);
@@ -29,9 +62,142 @@ export default function DashboardConsole() {
     { id: 2, title: "Plant-Based Power Lunch", pts: 60, coins: 150, done: true },
     { id: 3, title: "Phantom Load Patrol", pts: 30, coins: 80, done: false },
   ]);
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
+  const [loadingRecs, setLoadingRecs] = useState<boolean>(true);
+  const [analyticsSummary, setAnalyticsSummary] = useState<AnalyticsSummary | null>(null);
+  const [activitiesList, setActivitiesList] = useState<ActivityRecord[]>([]);
+
+  const fetchEcoScore = () => {
+    fetch("http://localhost:8080/api/eco-score")
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then((data) => {
+        if (data && typeof data.ecoScore === "number") {
+          setEcoScore(data.ecoScore);
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to fetch persistent Eco Score:", err);
+      });
+  };
+
+  const fetchChallenges = () => {
+    fetch("http://localhost:8080/api/challenges")
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          const mapped = data.map((item: any) => ({
+            id: item.id,
+            title: item.title,
+            pts: item.pts || 50,
+            coins: item.coins || item.ecoCoinsReward || 100,
+            done: Boolean(item.done || item.completed),
+            progressValue: item.progressValue,
+            targetValue: item.targetValue,
+            unit: item.unit,
+          }));
+          setMissions(mapped.slice(0, 5));
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to fetch persistent challenges:", err);
+      });
+  };
+
+  const fetchAnalyticsSummary = () => {
+    fetch("http://localhost:8080/api/activities/summary")
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then((data) => {
+        if (data) {
+          setAnalyticsSummary(data);
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to fetch analytics summary:", err);
+      });
+  };
+
+  const fetchActivitiesHistory = () => {
+    fetch("http://localhost:8080/api/activities")
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setActivitiesList(data.reverse());
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to fetch activity history:", err);
+      });
+  };
+
+  useEffect(() => {
+    Promise.allSettled([
+      fetchEcoScore(),
+      fetchChallenges(),
+      fetchAnalyticsSummary(),
+      fetchActivitiesHistory(),
+      fetch("http://localhost:8080/api/recommendations")
+        .then((res) => {
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          return res.json();
+        })
+        .then((data) => {
+          if (Array.isArray(data) && data.length > 0) {
+            setRecommendations(data.slice(0, 3));
+          }
+        })
+        .catch((err) => {
+          console.error("Failed to fetch AI recommendations:", err);
+        })
+        .finally(() => {
+          setLoadingRecs(false);
+        }),
+    ]);
+  }, []);
 
   const toggleMission = (id: number) => {
-    setMissions(missions.map(m => m.id === id ? { ...m, done: !m.done } : m));
+    fetch(`http://localhost:8080/api/challenges/${id}/complete`, {
+      method: "POST",
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then((data) => {
+        if (data && (data.completed === true || data.done === true)) {
+          setMissions((prev) =>
+            prev.map((m) => (m.id === id ? { ...m, done: true } : m))
+          );
+          fetchEcoScore();
+          fetchChallenges();
+          fetchAnalyticsSummary();
+          fetchActivitiesHistory();
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to complete challenge:", err);
+      });
+  };
+
+  const getCategoryStyle = (cat: string) => {
+    const upper = cat?.toUpperCase() || "";
+    if (upper.includes("ENERGY") || upper.includes("ELECTRICITY")) return "bg-yellow-500/20 text-yellow-400";
+    if (upper.includes("FOOD")) return "bg-emerald-500/20 text-emerald-400";
+    if (upper.includes("TRANSPORT")) return "bg-sky-500/20 text-sky-400";
+    if (upper.includes("WATER")) return "bg-teal-500/20 text-teal-400";
+    if (upper.includes("WASTE") || upper.includes("PLASTIC")) return "bg-purple-500/20 text-purple-400";
+    return "bg-emerald-500/20 text-emerald-400";
   };
 
   return (
@@ -40,40 +206,46 @@ export default function DashboardConsole() {
       <TrackActivityModal
         isOpen={isTrackModalOpen}
         onClose={() => setIsTrackModalOpen(false)}
-        onSuccess={(result) => {
-          if (result?.ecoScoreImpact !== undefined && result?.ecoScoreImpact !== null) {
-            setEcoScore((prev) =>
-              Math.max(0, Math.min(1000, prev + result.ecoScoreImpact))
-            );
-          }
+        onSuccess={() => {
+          fetchEcoScore();
+          fetchChallenges();
+          fetchAnalyticsSummary();
+          fetchActivitiesHistory();
         }}
       />
 
 
       {/* Top Welcome Bar */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="font-display font-bold text-3xl tracking-tight">OS Console</h1>
-          <p className="text-neutral-400 text-sm">Welcome back, John. EcoVerse OS is running optimally.</p>
+          <h1 className="font-display font-bold text-2xl sm:text-3xl tracking-tight">OS Console</h1>
+          <p className="text-neutral-400 text-xs sm:text-sm">Welcome back, John. EcoVerse OS is running optimally.</p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-2.5 sm:gap-3 w-full sm:w-auto">
           <button
             onClick={() => setIsTrackModalOpen(true)}
-            className="px-4 py-2 text-xs font-semibold bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-xl transition-all flex items-center gap-2 shadow-lg glow-border-emerald"
+            className="flex-1 sm:flex-initial px-3.5 sm:px-4 py-2 text-xs font-semibold bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg glow-border-emerald"
           >
             <Sparkles className="w-3.5 h-3.5" /> Track Activity
           </button>
-          <button className="px-4 py-2 text-xs font-semibold glass-panel rounded-xl hover:bg-white/5 transition-colors flex items-center gap-2">
+          <button
+            onClick={() => {
+              fetchEcoScore();
+              fetchAnalyticsSummary();
+              fetchActivitiesHistory();
+            }}
+            className="px-3.5 sm:px-4 py-2 text-xs font-semibold glass-panel rounded-xl hover:bg-white/5 transition-colors flex items-center gap-2"
+          >
             <RefreshCw className="w-3.5 h-3.5" /> Re-sync Devices
           </button>
-          <div className="px-4 py-2 text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-xl flex items-center gap-2">
+          <div className="px-3.5 sm:px-4 py-2 text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-xl flex items-center gap-2">
             <Shield className="w-3.5 h-3.5" /> EcoScore: Excellent ({ecoScore})
           </div>
         </div>
       </div>
 
       {/* Main Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
         <div className="glass-panel p-6 rounded-2xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-xl pointer-events-none" />
           <div className="flex justify-between items-start mb-4">
@@ -97,7 +269,9 @@ export default function DashboardConsole() {
             <Leaf className="w-4 h-4 text-emerald-400" />
           </div>
           <div className="flex items-baseline gap-1">
-            <span className="text-4xl font-display font-bold">148.2</span>
+            <span className="text-4xl font-display font-bold">
+              {analyticsSummary ? analyticsSummary.totalCo2SavedTransportKg : 0}
+            </span>
             <span className="text-xs text-neutral-500">kg</span>
           </div>
           <p className="text-xs text-neutral-400 mt-2">Offset equivalent to 6 trees</p>
@@ -109,7 +283,9 @@ export default function DashboardConsole() {
             <TrendingUp className="w-4 h-4 text-sky-400" />
           </div>
           <div className="flex items-baseline gap-1">
-            <span className="text-4xl font-display font-bold text-sky-400 glow-text-sky">1,240</span>
+            <span className="text-4xl font-display font-bold text-sky-400 glow-text-sky">
+              {analyticsSummary ? analyticsSummary.totalWaterLitres.toLocaleString("en-US") : 0}
+            </span>
             <span className="text-xs text-neutral-500">Liters</span>
           </div>
           <p className="text-xs text-neutral-400 mt-2">Saved via smart flow meters</p>
@@ -121,7 +297,9 @@ export default function DashboardConsole() {
             <Zap className="w-4 h-4 text-yellow-400" />
           </div>
           <div className="flex items-baseline gap-1">
-            <span className="text-4xl font-display font-bold">85.4</span>
+            <span className="text-4xl font-display font-bold">
+              {analyticsSummary ? analyticsSummary.totalElectricityKwh : 0}
+            </span>
             <span className="text-xs text-neutral-500">kWh</span>
           </div>
           <p className="text-xs text-neutral-400 mt-2">12% below campus baseline</p>
@@ -145,7 +323,7 @@ export default function DashboardConsole() {
           </div>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={data}>
+              <AreaChart data={analyticsSummary?.dailyTrends && analyticsSummary.dailyTrends.length > 0 ? analyticsSummary.dailyTrends : []}>
                 <defs>
                   <linearGradient id="colorCarbon" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#10b981" stopOpacity={0.2} />
@@ -213,20 +391,56 @@ export default function DashboardConsole() {
         <div className="glass-panel p-6 rounded-2xl space-y-4">
           <h3 className="font-bold text-lg">AI Coaching Directives</h3>
           <div className="space-y-3">
-            <div className="p-4 rounded-xl bg-white/5 border border-white/5 hover:border-emerald-500/25 transition-all">
-              <div className="flex items-center gap-2 mb-1.5">
-                <span className="px-2 py-0.5 rounded bg-yellow-500/20 text-yellow-400 text-[10px] font-bold uppercase">Energy</span>
-                <h4 className="text-sm font-bold">Reschedule High-Drain Appliances</h4>
+            {loadingRecs ? (
+              <div className="p-4 rounded-xl bg-white/5 border border-white/5 text-xs text-neutral-400 flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-emerald-400 animate-spin" />
+                <span>Generating live AI directives from your activities...</span>
               </div>
-              <p className="text-xs text-neutral-400">Peak hours spikes detected. Shift laundry and dishwashing to after 8 PM to lower grid load carbon intensity.</p>
-            </div>
-            <div className="p-4 rounded-xl bg-white/5 border border-white/5 hover:border-emerald-500/25 transition-all">
-              <div className="flex items-center gap-2 mb-1.5">
-                <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase">Food</span>
-                <h4 className="text-sm font-bold">Replace imported red beef</h4>
-              </div>
-              <p className="text-xs text-neutral-400">Scanned receipt items show carbon intensive meat choices. Swapping beef for local poultry cuts 80% emissions.</p>
-            </div>
+            ) : recommendations.length > 0 ? (
+              recommendations.map((rec, idx) => (
+                <div
+                  key={idx}
+                  className="p-4 rounded-xl bg-white/5 border border-white/5 hover:border-emerald-500/25 transition-all"
+                >
+                  <div className="flex items-center justify-between gap-2 mb-1.5 flex-wrap">
+                    <div className="flex items-center gap-2">
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${getCategoryStyle(rec.category)}`}>
+                        {rec.category}
+                      </span>
+                      {rec.difficulty && (
+                        <span className="text-[10px] font-semibold text-neutral-400">
+                          &bull; {rec.difficulty}
+                        </span>
+                      )}
+                    </div>
+                    {rec.potentialSavingsCo2 !== undefined && rec.potentialSavingsCo2 > 0 && (
+                      <span className="text-[10px] font-semibold text-emerald-400">
+                        -{rec.potentialSavingsCo2} kg CO₂
+                      </span>
+                    )}
+                  </div>
+                  <h4 className="text-sm font-bold text-white mb-1">{rec.title}</h4>
+                  <p className="text-xs text-neutral-400">{rec.description}</p>
+                </div>
+              ))
+            ) : (
+              <>
+                <div className="p-4 rounded-xl bg-white/5 border border-white/5 hover:border-emerald-500/25 transition-all">
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span className="px-2 py-0.5 rounded bg-yellow-500/20 text-yellow-400 text-[10px] font-bold uppercase">Energy</span>
+                    <h4 className="text-sm font-bold">Reschedule High-Drain Appliances</h4>
+                  </div>
+                  <p className="text-xs text-neutral-400">Peak hours spikes detected. Shift laundry and dishwashing to after 8 PM to lower grid load carbon intensity.</p>
+                </div>
+                <div className="p-4 rounded-xl bg-white/5 border border-white/5 hover:border-emerald-500/25 transition-all">
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase">Food</span>
+                    <h4 className="text-sm font-bold">Replace imported red beef</h4>
+                  </div>
+                  <p className="text-xs text-neutral-400">Scanned receipt items show carbon intensive meat choices. Swapping beef for local poultry cuts 80% emissions.</p>
+                </div>
+              </>
+            )}
           </div>
         </div>
 
@@ -234,27 +448,28 @@ export default function DashboardConsole() {
         <div className="glass-panel p-6 rounded-2xl space-y-4">
           <h3 className="font-bold text-lg">Eco Timeline</h3>
           <div className="relative pl-6 space-y-6 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[2px] before:bg-white/5">
-            <div className="relative flex items-start gap-4">
-              <div className="absolute -left-[19px] w-2.5 h-2.5 rounded-full bg-emerald-500 ring-4 ring-emerald-500/25" />
-              <div className="flex flex-col">
-                <span className="text-xs font-semibold">Grocery Receipt Scanned</span>
-                <span className="text-[10px] text-neutral-500">2 hours ago &bull; Organic Foods Market</span>
+            {activitiesList.length > 0 ? (
+              activitiesList.slice(0, 5).map((act, idx) => (
+                <div key={act.id || idx} className="relative flex items-start gap-4">
+                  <div className={`absolute -left-[19px] w-2.5 h-2.5 rounded-full ring-4 ${
+                    (act.transportDistanceKm || 0) > 0 ? "bg-sky-500 ring-sky-500/25" :
+                    (act.electricityKwh || 0) > 0 ? "bg-yellow-500 ring-yellow-500/25" : "bg-emerald-500 ring-emerald-500/25"
+                  }`} />
+                  <div className="flex flex-col">
+                    <span className="text-xs font-semibold">
+                      {act.transportMode ? `${act.transportMode} Logged` : "Activity Logged"}
+                    </span>
+                    <span className="text-[10px] text-neutral-500">
+                      {act.recordedAt ? new Date(act.recordedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "Recently"} &bull; {act.estimatedCo2EmissionsKg} kg CO₂
+                    </span>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-xs text-neutral-400 py-2">
+                No activity history logged yet. Track your first activity above!
               </div>
-            </div>
-            <div className="relative flex items-start gap-4">
-              <div className="absolute -left-[19px] w-2.5 h-2.5 rounded-full bg-sky-500 ring-4 ring-sky-500/25" />
-              <div className="flex flex-col">
-                <span className="text-xs font-semibold">Commute log registered</span>
-                <span className="text-[10px] text-neutral-500">6 hours ago &bull; 8.4 km bike ride</span>
-              </div>
-            </div>
-            <div className="relative flex items-start gap-4">
-              <div className="absolute -left-[19px] w-2.5 h-2.5 rounded-full bg-yellow-500 ring-4 ring-yellow-500/25" />
-              <div className="flex flex-col">
-                <span className="text-xs font-semibold">Electricity Bill Processed</span>
-                <span className="text-[10px] text-neutral-500">1 day ago &bull; KWh usage down 14%</span>
-              </div>
-            </div>
+            )}
           </div>
         </div>
       </div>

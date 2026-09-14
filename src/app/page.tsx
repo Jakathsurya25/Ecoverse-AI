@@ -101,19 +101,19 @@ export default function LandingPage() {
           <div className="glass-panel p-6 rounded-2xl border border-white/5 flex flex-col items-center">
             <span className="text-neutral-500 text-sm font-semibold uppercase tracking-wider mb-2">CO₂ Offsets Registered</span>
             <span className="text-3xl font-display font-bold text-emerald-400 glow-text-emerald">
-              {globalStats.co2Saved.toLocaleString()} kg
+              {globalStats.co2Saved.toLocaleString("en-US")} kg
             </span>
           </div>
           <div className="glass-panel p-6 rounded-2xl border border-white/5 flex flex-col items-center">
             <span className="text-neutral-500 text-sm font-semibold uppercase tracking-wider mb-2">Community Trees Planted</span>
             <span className="text-3xl font-display font-bold text-white">
-              {globalStats.treesPlanted.toLocaleString()}
+              {globalStats.treesPlanted.toLocaleString("en-US")}
             </span>
           </div>
           <div className="glass-panel p-6 rounded-2xl border border-white/5 flex flex-col items-center">
             <span className="text-neutral-500 text-sm font-semibold uppercase tracking-wider mb-2">Clean Water Conserved</span>
             <span className="text-3xl font-display font-bold text-sky-400 glow-text-sky">
-              {globalStats.waterSaved.toLocaleString()} L
+              {globalStats.waterSaved.toLocaleString("en-US")} L
             </span>
           </div>
         </div>
